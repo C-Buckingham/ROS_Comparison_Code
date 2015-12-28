@@ -12,7 +12,7 @@ from cv_bridge import CvBridge, CvBridgeError
 #def onKeyPress(event):
 #    text.insert('end', 'You pressed %s\n' % (event.char, ))
 
-base_image = cv2.imread("/home/chris/catkin_ws/src/comparson_code/Screenshot from 2015-12-28 14:25:55.png")
+base_image = cv2.imread("/home/chris/catkin_ws/src/comparson_code/Base_Image.png")
 hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
 blue_base_image_hist = cv2.calcHist([base_image],[0],None,[256],[0,256])
