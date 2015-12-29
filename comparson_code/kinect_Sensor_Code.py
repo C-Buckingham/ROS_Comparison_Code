@@ -29,8 +29,10 @@ class video_get:
             video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
         except CvBridgeError, e:
             print e
+            
         global no_input
         global no_base_image
+        
         if no_base_image:
             print 'No image to compare against.'
             if no_input == False:
@@ -38,7 +40,8 @@ class video_get:
                 screen_grab = video_image
                 cv2.imwrite("Base.jpg", screen_grab)            
                 no_input = True  
-                no_base_image = False   
+                no_base_image = False
+                
         else:            
             base_image = cv2.imread("/home/chris/catkin_ws/src/comparson_code/Base.jpg")
             hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)             
@@ -87,8 +90,7 @@ class video_get:
     
 
     threading.Thread(target = signal_user_input).start()
-    
-no_input == True              
+                 
 video_get()
 rospy.init_node('image_get', anonymous=True)
 rospy.spin()
