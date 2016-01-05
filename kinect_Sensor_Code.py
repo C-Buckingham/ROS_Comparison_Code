@@ -43,8 +43,8 @@ class video_get:
                 no_base_image = False
                 
         else:            
-            base_image = cv2.imread("/home/chris/catkin_ws/src/comparson_code/Base.jpg")
-            hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)             
+            base_image = cv2.imread("/home/chris/catkin_ws/src/ROS_Comparison_Code/Base.jpg")
+            hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_RGB2HSV)             
             
             hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
             
@@ -61,20 +61,19 @@ class video_get:
                 bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [0,256])
                 bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [0,256])
                 bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
-            
-            for x in range (0, 2):
-                hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[0,256])
-                hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[0,256])                
-                hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
-                
+                if (x < 2):
+                    hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[0,256])
+                    hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[0,256])                
+                    hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
+     
             bgr_avg_correlation = numpy.mean(bgr_comparison_result)
             hsv_avg_correlation = numpy.mean(hsv_comparison_result)
             
-    #        print ('bgr: ', bgr_avg_correlation)
+            print ('bgr: ', bgr_avg_correlation)
     #        print '===='
-    #        print ('hsv: ', hsv_avg_correlation)
+            print ('hsv: ', hsv_avg_correlation)
             
-            if (bgr_avg_correlation+hsv_avg_correlation)/2 < 0.85:
+            if bgr_avg_correlation < 0.85: #+hsv_avg_correlation)/2 < 0.85:
                 print 'Different'
             else:
                 print 'Same' 
