@@ -53,8 +53,8 @@ def draw_matches(img1, kp1, img2, kp2, matches, color=None):
         c = color
     for m in matches:
         # Generate random color for RGB/BGR and grayscale images as needed.
-        if not color: 
-            c = np.random.randint(0,256,3) if len(img1.shape) == 3 else np.random.randint(0,256)
+        if not color:
+            c = (0, 255, 1)
         # So the keypoint locs are stored as a tuple of floats.  cv2.line(), like most other things,
         # wants locs as a tuple of ints.
         end1 = tuple(np.round(kp1[m.trainIdx].pt).astype(int))

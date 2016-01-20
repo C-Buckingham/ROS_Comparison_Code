@@ -2,7 +2,7 @@
 
 import rospy
 import cv2
-import numpy
+import numpy as np
 import threading
 
 from sensor_msgs.msg import Image
@@ -69,9 +69,9 @@ class video_get:
             bgr_avg_correlation = numpy.mean(bgr_comparison_result)
             hsv_avg_correlation = numpy.mean(hsv_comparison_result)
             
-            print ('bgr: ', bgr_avg_correlation)
+#            print ('bgr: ', bgr_avg_correlation)
     #        print '===='
-            print ('hsv: ', hsv_avg_correlation)
+#            print ('hsv: ', hsv_avg_correlation)
             
             if bgr_avg_correlation < 0.85: #+hsv_avg_correlation)/2 < 0.85:
                 print 'Different'
@@ -80,7 +80,9 @@ class video_get:
                    
             print '===='        
             
-            cv2.imshow("Image window", video_image)        
+            vis = np.concatenate((base_image, video_image), axis=1)
+            
+            cv2.imshow("Image window", vis)        
         
     def signal_user_input():
         global no_input
