@@ -65,7 +65,7 @@ class video_get:
                     hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[0,256])
                     hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[0,256])                
                     hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
-     
+                
             bgr_avg_correlation = numpy.mean(bgr_comparison_result)
             hsv_avg_correlation = numpy.mean(hsv_comparison_result)
             
