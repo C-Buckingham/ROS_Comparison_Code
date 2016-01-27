@@ -76,7 +76,7 @@ class image_crop:
         
             cv2.imshow("Image window", crop_image)  
         
-        print "No Image"
+        print "No Person"
 
 image_crop()
 rospy.init_node('image_converter', anonymous=True)
