@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import threading
 
-from time import sleep
 from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
@@ -14,11 +13,13 @@ no_input = True
 no_base_image = True
 count = 0
 
-class video_get:
+choice = raw_input('Choose between Feature Matching (F) or Colour Matching (C): ')
+
+class person_comparison:
 
     def __init__(self):
-        cv2.namedWindow("Image window", 1)
-        cv2.namedWindow("New image window", 1)
+        cv2.namedWindow("Live Image", 1)
+        cv2.namedWindow("Base Image", 1)
         cv2.startWindowThread()
         self.bridge = CvBridge()
         
@@ -52,39 +53,39 @@ class video_get:
         global screen_grab
         global no_base_image
         global count
-        person_detected  = False
+        global choice
         
         if (self.person_height):
-            person_detected = True
             if (self.person_height[0] < 0):
-                p_h = 0
+                person_h = 0
             elif(self.person_height[0] > 480):
-                p_h = 480
+                person_h = 480
             else:
-                p_h = self.person_height[0]
+                person_h = self.person_height[0]
                 
             if (self.person_width[0] < 0):
-                p_w = 0
+                person_w = 0
             elif(self.person_width[0] > 640):
-                p_w = 640
+                person_w = 640
             else:
-                p_w = self.person_width[0]
+                person_w = self.person_width[0]
    
             if (self.person_x[0] < 0):
-                p_x = 0
+                person_x = 0
             elif(self.person_x[0] > 480):
-                p_x = 480
+                person_x = 480
             else:
-                p_x = self.person_x[0]
+                person_x = self.person_x[0]
                 
             if (self.person_y[0] < 0):
-                p_y = 0
+                person_y = 0
             elif(self.person_y[0] > 640):
-                p_y = 640
+                person_y = 640
             else:
-                p_y = self.person_y[0]       
+                person_y = self.person_y[0]       
         
         if no_base_image:
+            print "Press Enter to capture base image"
             if no_input == False:
                 print "No Person"
                 if (self.person_height):
@@ -92,17 +93,30 @@ class video_get:
                     print count                    
                     
                 if (count > 50):
-                    screen_grab = video_image[p_y:(p_y+p_w)*2, p_x:p_x+p_h]          
+                    screen_grab = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]          
                     no_input = True  
                     no_base_image = False
                 
         else:
-            if (person_detected):
+            base_image = screen_grab
+            
+            video_image = video_image[p_y:(p_y+person_w)*2, person_x:person_x+person_h]
+            if (choice == 'F'):
+                orb = cv2.ORB()
+
+                kp1, des1 = orb.detectAndCompute(video_image,None)
+                kp2, des2 = orb.detectAndCompute(base_image, None)
                 
-                base_image = screen_grab
+                bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
                 
-                video_image = video_image[p_y:(p_y+p_w)*2, p_x:p_x+p_h]
-    
+                matches = bf.match(des1,des2)
+        
+                matches = sorted(matches, key = lambda x:x.distance)
+                
+                video_image = cv2.drawKeypoints(video_image,kp1,color=(0,255,0), flags=0)
+                base_image = cv2.drawKeypoints(base_image,kp2,color=(0,255,0), flags=0)
+                
+            else:
                 hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_RGB2HSV)             
                 
                 hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
@@ -132,10 +146,9 @@ class video_get:
                     print 'Same' 
                        
                 print '==='
-                
-                person_detected = False     
-                cv2.imshow("Image window", video_image)
-                cv2.imshow("New image window", base_image)
+            
+            cv2.imshow("Live Image", video_image)
+            cv2.imshow("Base Image", base_image)
         
     def signal_user_input():
         global no_input
@@ -144,10 +157,9 @@ class video_get:
     
 
     threading.Thread(target = signal_user_input).start()
-    
-              
-video_get()
-rospy.init_node('image_get', anonymous=True)
+
+person_comparison()
+rospy.init_node('person_comparison', anonymous=True)
 rospy.spin()
     
 cv2.destroyAllWindows()
