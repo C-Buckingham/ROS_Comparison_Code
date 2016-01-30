@@ -114,6 +114,7 @@ class person_comparison:
                     match = bf.match(des1,des2)
                     matches = bf.knnMatch(des1, des2)                    
                     
+#                    Why I am using ORB: https://www.willowgarage.com/sites/default/files/orb_final.pdf
                     
                     good = []
                     for m,n in matches:
