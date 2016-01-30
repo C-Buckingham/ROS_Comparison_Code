@@ -54,6 +54,7 @@ class person_comparison:
         global no_base_image
         global count
         global choice
+        person_y = ''
         
         if (self.person_height):
             if (self.person_height[0] < 0):
@@ -99,53 +100,62 @@ class person_comparison:
                 
         else:
             base_image = screen_grab
-            
-            video_image = video_image[p_y:(p_y+person_w)*2, person_x:person_x+person_h]
-            if (choice == 'F'):
-                orb = cv2.ORB()
-
-                kp1, des1 = orb.detectAndCompute(video_image,None)
-                kp2, des2 = orb.detectAndCompute(base_image, None)
-                
-                bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-                
-                matches = bf.match(des1,des2)
-        
-                matches = sorted(matches, key = lambda x:x.distance)
-                
-                video_image = cv2.drawKeypoints(video_image,kp1,color=(0,255,0), flags=0)
-                base_image = cv2.drawKeypoints(base_image,kp2,color=(0,255,0), flags=0)
-                
-            else:
-                hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_RGB2HSV)             
-                
-                hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
-                        
-                bgr_comparison_result = []
-                hsv_comparison_result = []
-                
-                for x in range (0, 3):
-                    bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [0,256])
-                    bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [0,256])
-                    bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
-                    if (x < 2):
-                        hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[0,256])
-                        hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[0,256])                
-                        hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
+            if (person_y):
+                video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                if (choice == 'F'):
+                    orb = cv2.ORB()
+    
+                    kp1, des1 = orb.detectAndCompute(video_image,None)
+                    kp2, des2 = orb.detectAndCompute(base_image, None)
                     
-                bgr_avg_correlation = np.mean(bgr_comparison_result)
-                hsv_avg_correlation = np.mean(hsv_comparison_result)
-                
-                print ('bgr: ', bgr_avg_correlation)
-        #        print '===='
-                print ('hsv: ', hsv_avg_correlation)
-                
-                if bgr_avg_correlation < 0.85: #+hsv_avg_correlation)/2 < 0.85:
-                    print 'Different'
+#                    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+                    bf = cv2.BFMatcher()
+                    
+                    match = bf.match(des1,des2)
+                    matches = bf.knnMatch(des1, des2)                    
+                    
+                    
+                    good = []
+                    for m,n in matches:
+                        if m.distance < 0.75*n.distance:
+                            good.append([m])
+                    
+            
+                    match = sorted(match, key = lambda x:x.distance)
+                    
+                    video_image = cv2.drawKeypoints(video_image,kp1,color=(0,255,0), flags=0)
+                    base_image = cv2.drawKeypoints(base_image,kp2,color=(0,255,0), flags=0)
+                    
                 else:
-                    print 'Same' 
-                       
-                print '==='
+                    hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_RGB2HSV)             
+                    
+                    hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
+                            
+                    bgr_comparison_result = []
+                    hsv_comparison_result = []
+                    
+                    for x in range (0, 3):
+                        bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [0,256])
+                        bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [0,256])
+                        bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
+                        if (x < 2):
+                            hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[0,256])
+                            hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[0,256])                
+                            hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
+                        
+                    bgr_avg_correlation = np.mean(bgr_comparison_result)
+                    hsv_avg_correlation = np.mean(hsv_comparison_result)
+                    
+                    print ('bgr: ', bgr_avg_correlation)
+            #        print '===='
+                    print ('hsv: ', hsv_avg_correlation)
+                    
+                    if bgr_avg_correlation < 0.85: #+hsv_avg_correlation)/2 < 0.85:
+                        print 'Different'
+                    else:
+                        print 'Same' 
+                           
+                    print '==='
             
             cv2.imshow("Live Image", video_image)
             cv2.imshow("Base Image", base_image)
