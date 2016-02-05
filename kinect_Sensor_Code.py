@@ -8,6 +8,7 @@ import threading
 from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
+from message_filters import ApproximateTimeSynchronizer, Subscriber
 
 no_input = True
 no_base_image = True
@@ -23,27 +24,26 @@ class person_comparison:
         cv2.startWindowThread()
         self.bridge = CvBridge()
         
-        self.image_sub = rospy.Subscriber(
+        image_sub = Subscriber(
             "/camera/rgb/image_color",
             Image,
-            callback=self.image_callback,
-            queue_size=1
         )
         
-        self.person_sub = rospy.Subscriber(
+        person_sub = Subscriber(
             "/upper_body_detector/detections",
             UpperBodyDetector,
-            callback=self.person_callback,
-            queue_size=1
         )
         
-    def person_callback(self, person):
-        self.person_x = person.pos_x
-        self.person_y = person.pos_y
-        self.person_height = person.height        
-        self.person_width = person.width
-            
-    def image_callback(self, img):
+        ts = ApproximateTimeSynchronizer([image_sub, person_sub], 10, 0.1)
+        ts.registerCallback(self.image_callback)
+
+    def image_callback(self, img, person):
+        
+        person_x = person.pos_x
+        person_y = person.pos_y
+        person_height = person.height        
+        person_width = person.width
+        
         try:
             video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
         except CvBridgeError, e:
@@ -54,54 +54,35 @@ class person_comparison:
         global no_base_image
         global count
         global choice
-        person_y = ''
         
-        if (self.person_height):
-            if (self.person_height[0] < 0):
-                person_h = 0
-            elif(self.person_height[0] > 480):
-                person_h = 480
-            else:
-                person_h = self.person_height[0]
-                
-            if (self.person_width[0] < 0):
-                person_w = 0
-            elif(self.person_width[0] > 640):
-                person_w = 640
-            else:
-                person_w = self.person_width[0]
-   
-            if (self.person_x[0] < 0):
-                person_x = 0
-            elif(self.person_x[0] > 480):
-                person_x = 480
-            else:
-                person_x = self.person_x[0]
-                
-            if (self.person_y[0] < 0):
-                person_y = 0
-            elif(self.person_y[0] > 640):
-                person_y = 640
-            else:
-                person_y = self.person_y[0]       
+        if (person_height):
+            max(person_height, 480)
+            max(person_width, 640)
+            max(person_x, 480)
+            max(person_y, 640)
+            
+            min(person_height, 0)
+            min(person_width, 0)
+            min(person_x, 0)
+            min(person_y, 0)
+                            
+        print "Press Enter to capture base image"
         
-        if no_base_image:
-            print "Press Enter to capture base image"
-            if no_input == False:
-                print "No Person"
-                if (self.person_height):
-                    count = count + 1
-                    print count                    
-                    
-                if (count > 50):
-                    screen_grab = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]          
-                    no_input = True  
-                    no_base_image = False
+        if no_input == False:
+            print "No Person"
+            if (person_height):
+                count = count + 1
+                print count                    
                 
-        else:
+            if (count > 20):
+                screen_grab = video_image[person_y[0]:(person_y[0]+person_width[0])*2, person_x[0]:person_x[0]+person_height[0]]          
+                no_input = True  
+                no_base_image = False
+            
+        elif (no_base_image and no_input):
             base_image = screen_grab
             if (person_y):
-                video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                video_image = video_image[person_y[0]:(person_y[0]+person_width[0])*2, person_x[0]:person_x[0]+person_height[0]]
                 if (choice == 'F'):
                     orb = cv2.ORB()
     
@@ -151,10 +132,10 @@ class person_comparison:
             #        print '===='
                     print ('hsv: ', hsv_avg_correlation)
                     
-                    if bgr_avg_correlation < 0.85: #+hsv_avg_correlation)/2 < 0.85:
-                        print 'Different'
+                    if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.85:
+                        print 'Same'
                     else:
-                        print 'Same' 
+                        print 'Different' 
                            
                     print '==='
             
