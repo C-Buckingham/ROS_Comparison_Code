@@ -3,6 +3,7 @@
 import rospy
 import cv2
 import numpy as np
+import math
 
 from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
@@ -55,9 +56,7 @@ class training:
             person_w = max(person_width[0], 0)
             person_x = max(person_pos_x[0], 0)
             person_y = max(person_pos_y[0], 0)
-            
-#        print type(depth)        
-        
+                    
         try:
             video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
             depth_image = self.bridge.imgmsg_to_cv2(depth)
@@ -68,25 +67,26 @@ class training:
             video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
             depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
 
-        print depth_image[0][1]
-        print "Width: ", depth_image.shape[0]
-        print "Height: ", depth_image.shape[1]
+#        print depth_image[0][1]
+#        print "Width: ", depth_image.shape[0]
+#        print "Height: ", depth_image.shape[1]
 #        (thresh, depth_image) = cv2.threshold(depth_image, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 #        depth_image = cv2.bitwise_and(video_image,video_image,mask = depth_image)
         
         if(person_pos_y):        
             for x in range (0,depth_image.shape[0]):
                 for y in range (0, depth_image.shape[1]):
-                    if(depth_image[x][y] > person_depth or depth_image[x][y] < person_depth or depth_image[x][y] == nan):                       
+                    if(depth_image[x][y] < person_depth[0]+1):          
                         video_image[x][y] = video_image[x][y]
                     else:
+#                        print depth_image[x][y]
                         video_image[x][y] = 0
 #                    
         
 #        print depth_image
 #        print video_image
 #        print depth_image[0]
-        print type(depth_image)
+#        print type(depth_image)
         
         
         if(person_pos_y):        

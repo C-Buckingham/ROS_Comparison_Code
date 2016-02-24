@@ -33,12 +33,27 @@ class person_comparison:
             "/upper_body_detector/detections",
             UpperBodyDetector,
         )
+        
+        depth_sub = Subscriber(
+            "/camera/depth/image_rect",
+            Image,
+        )
 
-        ts = ApproximateTimeSynchronizer([image_sub, person_sub], 10, 0.1)
+        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 10, 0.1)
         ts.registerCallback(self.image_callback)
 
-    def colour_Matching(base_image, video_image):
-#        print "Colour Matching"
+    def colour_Matching(base_image, video_image, depth_image, person_depth):     
+        
+        print video_image.shape
+        hist_ranges = [1,255]
+        print hist_ranges
+        for x in range (0,depth_image.shape[0]):
+            for y in range (0, depth_image.shape[1]):
+                if(depth_image[x][y] < person_depth[0]+1):          
+                    video_image[x][y] = video_image[x][y]
+                else:
+                    video_image[x][y] = 0
+                        
         hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
@@ -49,8 +64,8 @@ class person_comparison:
         bgr_comparison_result = []
         hsv_comparison_result = []
         for x in range (0, 3):
-            bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [0,256])
-            bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [0,256])
+            bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [1,256])
+            bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [1,256])
             bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
             #print bgr_comparison_result[x]
             if (bgr_comparison_result[x] < 1):
@@ -58,8 +73,8 @@ class person_comparison:
                 
             min_Values[x] = min(min_Values[x], bgr_comparison_result[x])
             if (x < 2):
-                hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[0,256])
-                hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[0,256])
+                hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[1,256])
+                hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[1,256])
                 hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
 
         bgr_avg_correlation = np.mean(bgr_comparison_result)
@@ -108,21 +123,26 @@ class person_comparison:
 
     options = {'C':colour_Matching, 'F':feature_Matching}
 
-    def image_callback(self, img, person):
+    def image_callback(self, img, person, depth):
 
         person_pos_x = person.pos_x
         person_pos_y = person.pos_y
         person_height = person.height
         person_width = person.width
+        person_depth = person.median_depth    
+        depth_image = []
         
         def clamp(n, minn, maxn):
             return max(min(maxn, n), minn)
 
         try:
             video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
+            depth_image = self.bridge.imgmsg_to_cv2(depth)
         except CvBridgeError, e:
             print e
 
+
+        print type(video_image)
         global screen_grab
         global no_base_image
         global count
@@ -152,8 +172,9 @@ class person_comparison:
 
             base_image = screen_grab
             if (person_pos_y):
+                depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
                 video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                options[choice](base_image, video_image)
+                options[choice](base_image, video_image, depth_image, person_depth)
 
             cv2.imshow("Live Image", video_image)
             cv2.imshow("Base Image", base_image)
