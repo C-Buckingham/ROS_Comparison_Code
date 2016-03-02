@@ -47,6 +47,8 @@ class person_comparison:
         print video_image.shape
         hist_ranges = [1,255]
         print hist_ranges
+            
+#        np.where(depth_image[:,0] < person_depth[:,0], 0, 1)
         for x in range (0,depth_image.shape[0]):
             for y in range (0, depth_image.shape[1]):
                 if(depth_image[x][y] < person_depth[0]+1):          
@@ -132,9 +134,6 @@ class person_comparison:
         person_depth = person.median_depth    
         depth_image = []
         
-        def clamp(n, minn, maxn):
-            return max(min(maxn, n), minn)
-
         try:
             video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
             depth_image = self.bridge.imgmsg_to_cv2(depth)
@@ -171,9 +170,17 @@ class person_comparison:
         if (no_base_image == False):
 
             base_image = screen_grab
+            print "Number of people: ", len(person_height)
+            
             if (person_pos_y):
                 depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
                 video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                depth_image_shape = depth_image.shape
+                depth_image = depth_image.ravel()
+                np.where(depth_image < person_depth, 1, 0)
+                depth_image = np.reshape(depth_image, (depth_image_shape))
+#                depth_image.astype(u)
+                print depth_image
                 options[choice](base_image, video_image, depth_image, person_depth)
 
             cv2.imshow("Live Image", video_image)
