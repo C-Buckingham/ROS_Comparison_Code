@@ -44,9 +44,9 @@ class person_comparison:
 
     def colour_Matching(base_image, video_image, depth_image, person_depth):     
         
-        print video_image.shape
+#        print video_image.shape
         hist_ranges = [1,255]
-        print hist_ranges
+#        print hist_ranges
             
 #        np.where(depth_image[:,0] < person_depth[:,0], 0, 1)
         for x in range (0,depth_image.shape[0]):
@@ -86,9 +86,9 @@ class person_comparison:
             text_file.write("Min BGR Value: %s"% min_Values)
             text_file.write("\nMax BGR Value: %s"% max_Values)
 
-        print ('bgr: ', bgr_avg_correlation)
-#        print '===='
-        print ('hsv: ', hsv_avg_correlation)
+#        print ('bgr: ', bgr_avg_correlation)
+##        print '===='
+#        print ('hsv: ', hsv_avg_correlation)
 
         if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.85:
             print 'Same'
@@ -141,7 +141,7 @@ class person_comparison:
             print e
 
 
-        print type(video_image)
+#        print type(video_image)
         global screen_grab
         global no_base_image
         global count
@@ -160,7 +160,7 @@ class person_comparison:
             person_y = max(person_pos_y[0], 0)
 
             count = count + 1
-            print count
+#            print count
 
         if (count == 20):
             screen_grab = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
@@ -170,17 +170,17 @@ class person_comparison:
         if (no_base_image == False):
 
             base_image = screen_grab
-            print "Number of people: ", len(person_height)
+#            print "Number of people: ", len(person_height)
             
             if (person_pos_y):
                 depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
                 video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                depth_image_shape = depth_image.shape
-                depth_image = depth_image.ravel()
-                np.where(depth_image < person_depth, 1, 0)
-                depth_image = np.reshape(depth_image, (depth_image_shape))
-#                depth_image.astype(u)
-                print depth_image
+#                depth_image_shape = depth_image.shape
+#                depth_image = depth_image.ravel()
+#                np.where(depth_image < person_depth, 1, 0)
+#                depth_image = np.reshape(depth_image, (depth_image_shape))
+##                depth_image.astype(u)
+#                print depth_image
                 options[choice](base_image, video_image, depth_image, person_depth)
 
             cv2.imshow("Live Image", video_image)
