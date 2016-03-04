@@ -46,15 +46,10 @@ class person_comparison:
         
 #        print video_image.shape
         hist_ranges = [1,255]
-#        print hist_ranges
-            
-#        np.where(depth_image[:,0] < person_depth[:,0], 0, 1)
-        for x in range (0,depth_image.shape[0]):
-            for y in range (0, depth_image.shape[1]):
-                if(depth_image[x][y] < person_depth[0]+1):          
-                    video_image[x][y] = video_image[x][y]
-                else:
-                    video_image[x][y] = 0
+#        print hist_ranges   
+        
+        for x in range (0, 3):
+            video_image[:, :, x] = video_image[:, :, x]*depth_image
                         
         hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
@@ -91,6 +86,8 @@ class person_comparison:
 #        print ('hsv: ', hsv_avg_correlation)
 
         if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.85:
+            cv2.imshow("Live Image", video_image)
+            cv2.imshow("Base Image", base_image)
             print 'Same'
         else:
             print 'Different'
@@ -126,65 +123,61 @@ class person_comparison:
     options = {'C':colour_Matching, 'F':feature_Matching}
 
     def image_callback(self, img, person, depth):
-
-        person_pos_x = person.pos_x
-        person_pos_y = person.pos_y
-        person_height = person.height
-        person_width = person.width
-        person_depth = person.median_depth    
-        depth_image = []
-        
-        try:
-            video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
-            depth_image = self.bridge.imgmsg_to_cv2(depth)
-        except CvBridgeError, e:
-            print e
-
-
-#        print type(video_image)
+       
+    #        print type(video_image)
         global screen_grab
         global no_base_image
         global count
-        global choice
+        global choice        
+        
+        for x in range (0, len(person.height)):      
+            person_pos_x = person.pos_x
+            person_pos_y = person.pos_y
+            person_height = person.height
+            person_width = person.width
+            person_depth = np.mean(person.median_depth)
+            depth_image = []
+            try:
+                video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
+                depth_image = self.bridge.imgmsg_to_cv2(depth)
+            except CvBridgeError, e:
+                print e      
 
-        if (person_height):
+            person_h = min(person_height[x], 480)
+            person_w = min(person_width[x], 640)
+            person_x = min(person_pos_x[x], 480)
+            person_y = min(person_pos_y[x], 640)
 
-            person_h = min(person_height[0], 480)
-            person_w = min(person_width[0], 640)
-            person_x = min(person_pos_x[0], 480)
-            person_y = min(person_pos_y[0], 640)
-
-            person_h = max(person_height[0], 0)
-            person_w = max(person_width[0], 0)
-            person_x = max(person_pos_x[0], 0)
-            person_y = max(person_pos_y[0], 0)
+            person_h = max(person_height[x], 0)
+            person_w = max(person_width[x], 0)
+            person_x = max(person_pos_x[x], 0)
+            person_y = max(person_pos_y[x], 0)
 
             count = count + 1
 #            print count
-
-        if (count == 20):
-            screen_grab = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-            no_base_image = False
-#            count = 0
-
-        if (no_base_image == False):
-
-            base_image = screen_grab
-#            print "Number of people: ", len(person_height)
-            
-            if (person_pos_y):
-                depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-#                depth_image_shape = depth_image.shape
-#                depth_image = depth_image.ravel()
-#                np.where(depth_image < person_depth, 1, 0)
-#                depth_image = np.reshape(depth_image, (depth_image_shape))
-##                depth_image.astype(u)
-#                print depth_image
-                options[choice](base_image, video_image, depth_image, person_depth)
-
-            cv2.imshow("Live Image", video_image)
-            cv2.imshow("Base Image", base_image)
+    
+            if (count == 20 and person_h):
+                screen_grab = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                no_base_image = False
+            elif(count == 20 and person_h == False):
+                count = 0
+    
+            if (no_base_image == False):
+    
+                base_image = screen_grab
+    #            print "Number of people: ", len(person_height)
+                
+                if (person_pos_y):
+                    depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                    video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                    depth_image_shape = depth_image.shape
+                    depth_image = depth_image.flatten()
+                    depth_image = np.where(depth_image < person_depth, 1, 0)
+                    depth_image = np.reshape(depth_image, (depth_image_shape))
+                    options[choice](base_image, video_image, depth_image, person_depth)
+    
+#                cv2.imshow("Live Image", video_image)
+#                cv2.imshow("Base Image", base_image)
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
