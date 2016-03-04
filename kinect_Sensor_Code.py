@@ -9,10 +9,10 @@ from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
 
-no_base_image = True
 count = 0
 max_Values = [0, 0, 0]
 min_Values = [1, 1, 1]
+base_image = []
 
 choice = raw_input('Choose between Feature Matching (F) or Colour Matching (C): ')
 
@@ -42,12 +42,8 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 10, 0.1)
         ts.registerCallback(self.image_callback)
 
-    def colour_Matching(base_image, video_image, depth_image, person_depth):     
-        
-#        print video_image.shape
-        hist_ranges = [1,255]
-#        print hist_ranges   
-        
+    def colour_Matching(base_image, video_image, depth_image):     
+               
         for x in range (0, 3):
             video_image[:, :, x] = video_image[:, :, x]*depth_image
                         
@@ -64,11 +60,12 @@ class person_comparison:
             bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [1,256])
             bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [1,256])
             bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
-            #print bgr_comparison_result[x]
+            
             if (bgr_comparison_result[x] < 1):
                 max_Values[x] = max(max_Values[x], bgr_comparison_result[x])
                 
             min_Values[x] = min(min_Values[x], bgr_comparison_result[x])
+            
             if (x < 2):
                 hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[1,256])
                 hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[1,256])
@@ -123,19 +120,11 @@ class person_comparison:
     options = {'C':colour_Matching, 'F':feature_Matching}
 
     def image_callback(self, img, person, depth):
-       
-    #        print type(video_image)
-        global screen_grab
-        global no_base_image
         global count
         global choice        
+        global base_image
         
         for x in range (0, len(person.height)):      
-            person_pos_x = person.pos_x
-            person_pos_y = person.pos_y
-            person_height = person.height
-            person_width = person.width
-            person_depth = np.mean(person.median_depth)
             depth_image = []
             try:
                 video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
@@ -143,38 +132,34 @@ class person_comparison:
             except CvBridgeError, e:
                 print e      
 
-            person_h = min(person_height[x], 480)
-            person_w = min(person_width[x], 640)
-            person_x = min(person_pos_x[x], 480)
-            person_y = min(person_pos_y[x], 640)
+            person_h = min(person.height[x], 480)
+            person_w = min(person.width[x], 640)
+            person_x = min(person.pos_x[x], 480)
+            person_y = min(person.pos_y[x], 640)
 
-            person_h = max(person_height[x], 0)
-            person_w = max(person_width[x], 0)
-            person_x = max(person_pos_x[x], 0)
-            person_y = max(person_pos_y[x], 0)
+            person_h = max(person.height[x], 0)
+            person_w = max(person.width[x], 0)
+            person_x = max(person.pos_x[x], 0)
+            person_y = max(person.pos_y[x], 0)
 
             count = count + 1
-#            print count
-    
+            
+            depth_image_shape = depth_image.shape
+            depth_image = depth_image.flatten()
+            depth_image = np.where(depth_image < person.median_depth[x]*1.10, 1, 0)
+            depth_image = np.reshape(depth_image, (depth_image_shape))            
+            
             if (count == 20 and person_h):
-                screen_grab = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                no_base_image = False
+                base_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                for x in range (0, 3):
+                    video_image[:, :, x] = video_image[:, :, x]*depth_image
+                        
             elif(count == 20 and person_h == False):
                 count = 0
-    
-            if (no_base_image == False):
-    
-                base_image = screen_grab
-    #            print "Number of people: ", len(person_height)
-                
-                if (person_pos_y):
-                    depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                    video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                    depth_image_shape = depth_image.shape
-                    depth_image = depth_image.flatten()
-                    depth_image = np.where(depth_image < person_depth, 1, 0)
-                    depth_image = np.reshape(depth_image, (depth_image_shape))
-                    options[choice](base_image, video_image, depth_image, person_depth)
+            elif(count > 20):
+                depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                options[choice](base_image, video_image, depth_image)
     
 #                cv2.imshow("Live Image", video_image)
 #                cv2.imshow("Base Image", base_image)
