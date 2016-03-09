@@ -3,7 +3,7 @@
 import rospy
 import cv2
 import numpy as np
-
+import matplotlib.pyplot as plt
 from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
@@ -21,6 +21,7 @@ class person_comparison:
     def __init__(self):
         cv2.namedWindow("Live Image", 1)
         cv2.namedWindow("Base Image", 1)
+        cv2.namedWindow("Original Image", 1)
         cv2.startWindowThread()
         self.bridge = CvBridge()
 
@@ -38,14 +39,19 @@ class person_comparison:
             "/camera/depth/image_rect",
             Image,
         )
+        
+        detections_image_sub = Subscriber(
+            "/upper_body_detector/image",
+            Image
+        )
 
-        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 10, 0.1)
+        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub, detections_image_sub], 10, 0.1)
         ts.registerCallback(self.image_callback)
 
     def colour_Matching(base_image, video_image, depth_image):     
                
-        for x in range (0, 3):
-            video_image[:, :, x] = video_image[:, :, x]*depth_image
+        for y in range (0, 3):
+            video_image[:, :, y] = video_image[:, :, y]*depth_image
                         
         hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
@@ -77,12 +83,13 @@ class person_comparison:
         with open("Output.txt", "w") as text_file:
             text_file.write("Min BGR Value: %s"% min_Values)
             text_file.write("\nMax BGR Value: %s"% max_Values)
+            text_file.write("\nHistogram: %s"% bgr_video_image_hist)
 
 #        print ('bgr: ', bgr_avg_correlation)
 ##        print '===='
 #        print ('hsv: ', hsv_avg_correlation)
 
-        if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.85:
+        if bgr_avg_correlation > 0.90:# or hsv_avg_correlation > 0.85:
             cv2.imshow("Live Image", video_image)
             cv2.imshow("Base Image", base_image)
             print 'Same'
@@ -119,10 +126,18 @@ class person_comparison:
 
     options = {'C':colour_Matching, 'F':feature_Matching}
 
-    def image_callback(self, img, person, depth):
+    def image_callback(self, img, person, depth, detect_img):
         global count
         global choice        
         global base_image
+#        start_time = time.time()
+#        print("--- %s seconds ---" % (time.time() - start_time))
+        try:
+            original_image = self.bridge.imgmsg_to_cv2(detect_img, "bgr8")
+        except CvBridgeError, e:
+                print e      
+        
+        cv2.imshow("Original Image", original_image)
         
         for x in range (0, len(person.height)):      
             depth_image = []
@@ -144,20 +159,35 @@ class person_comparison:
 
             count = count + 1
             
+            depth_offset_percentage = float(person_y/480.0*100.0)
+#            print depth_offset_percentage
+            
+            if depth_offset_percentage >= 50:
+                depth_image = depth_image.transpose()
+                depth_image = np.roll(depth_image, -35)
+                depth_image = depth_image.transpose()
+            else:
+#                depth_image = np.roll(depth_image, -10)
+                depth_image = depth_image.transpose()
+                depth_image = np.roll(depth_image, 35)
+                depth_image = depth_image.transpose()
+            
+            depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+            
             depth_image_shape = depth_image.shape
             depth_image = depth_image.flatten()
             depth_image = np.where(depth_image < person.median_depth[x]*1.10, 1, 0)
-            depth_image = np.reshape(depth_image, (depth_image_shape))            
+#            depth_image = np.where(depth_image > person.median_depth[x]*1.50, 1, 0)
+            depth_image = np.reshape(depth_image, (depth_image_shape))                     
             
             if (count == 20 and person_h):
                 base_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
-                for x in range (0, 3):
-                    video_image[:, :, x] = video_image[:, :, x]*depth_image
+                for y in range (0, 3):
+                    base_image[:, :, y] = base_image[:, :, y]*depth_image
                         
             elif(count == 20 and person_h == False):
                 count = 0
             elif(count > 20):
-                depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
                 video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
                 options[choice](base_image, video_image, depth_image)
     
