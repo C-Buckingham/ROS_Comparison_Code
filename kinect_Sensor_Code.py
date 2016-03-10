@@ -18,7 +18,10 @@ choice = raw_input('Choose between Feature Matching (F) or Colour Matching (C): 
 
 class person_comparison:
 
+    print "Section -2"
+
     def __init__(self):
+        ts = None
         cv2.namedWindow("Live Image", 1)
         cv2.namedWindow("Base Image", 1)
         cv2.namedWindow("Original Image", 1)
@@ -28,30 +31,35 @@ class person_comparison:
         image_sub = Subscriber(
             "/camera/rgb/image_color",
             Image,
+            queue_size=1
         )
 
         person_sub = Subscriber(
             "/upper_body_detector/detections",
             UpperBodyDetector,
+            queue_size=1
         )
         
         depth_sub = Subscriber(
             "/camera/depth/image_rect",
             Image,
+            queue_size=1
         )
         
         detections_image_sub = Subscriber(
             "/upper_body_detector/image",
-            Image
+            Image,
+            queue_size=1
         )
 
-        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub, detections_image_sub], 10, 0.1)
+        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub, detections_image_sub], 100, 0.1)
         ts.registerCallback(self.image_callback)
 
     def colour_Matching(base_image, video_image, depth_image):     
                
         for y in range (0, 3):
             video_image[:, :, y] = video_image[:, :, y]*depth_image
+            print "Section 4"
                         
         hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
@@ -63,6 +71,7 @@ class person_comparison:
         bgr_comparison_result = []
         hsv_comparison_result = []
         for x in range (0, 3):
+            print "Section 5"
             bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [1,256])
             bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [1,256])
             bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
@@ -76,11 +85,13 @@ class person_comparison:
                 hsv_video_image_hist = cv2.calcHist([hsv_video_image],[x],None,[256],[1,256])
                 hsv_base_image_hist = cv2.calcHist([hsv_base_image],[x],None,[256],[1,256])
                 hsv_comparison_result.append(cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
+                print "Section 6"
 
         bgr_avg_correlation = np.mean(bgr_comparison_result)
         hsv_avg_correlation = np.mean(hsv_comparison_result)
 
         with open("Output.txt", "w") as text_file:
+            print "Section 7"
             text_file.write("Min BGR Value: %s"% min_Values)
             text_file.write("\nMax BGR Value: %s"% max_Values)
             text_file.write("\nHistogram: %s"% bgr_video_image_hist)
@@ -93,10 +104,13 @@ class person_comparison:
             cv2.imshow("Live Image", video_image)
             cv2.imshow("Base Image", base_image)
             print 'Same'
+            print "Section 8"
         else:
             print 'Different'
+            print "Section 9"
 
         print '==='
+#        print "Section 9"
 
     def feature_Matching():
         print "Feature Matching"
@@ -130,8 +144,8 @@ class person_comparison:
         global count
         global choice        
         global base_image
-#        start_time = time.time()
-#        print("--- %s seconds ---" % (time.time() - start_time))
+        
+        print "Section -1"
         try:
             original_image = self.bridge.imgmsg_to_cv2(detect_img, "bgr8")
         except CvBridgeError, e:
@@ -139,9 +153,19 @@ class person_comparison:
         
         cv2.imshow("Original Image", original_image)
         
-        for x in range (0, len(person.height)):      
-            depth_image = []
+        for x in range (0, len(person.height)):     
+            person_h = None
+            person_w = None
+            person_x = None
+            person_y = None
+            depth_image = None
+            video_image = None
+            depth_offset_percentage = None
+            
+            print count
+            
             try:
+                print "Section 0"
                 video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
                 depth_image = self.bridge.imgmsg_to_cv2(depth)
             except CvBridgeError, e:
@@ -159,18 +183,19 @@ class person_comparison:
 
             count = count + 1
             
-            depth_offset_percentage = float(person_y/480.0*100.0)
+            depth_offset_percentage = float(person_x/640.0*100.0)
 #            print depth_offset_percentage
+            print "Section 1"
             
-            if depth_offset_percentage >= 50:
-                depth_image = depth_image.transpose()
-                depth_image = np.roll(depth_image, -35)
-                depth_image = depth_image.transpose()
-            else:
-#                depth_image = np.roll(depth_image, -10)
-                depth_image = depth_image.transpose()
-                depth_image = np.roll(depth_image, 35)
-                depth_image = depth_image.transpose()
+            depth_image = depth_image.transpose()
+            depth_image = np.roll(depth_image, 35)
+            depth_image = depth_image.transpose()
+            
+            if depth_offset_percentage >= 70:
+                depth_image = np.roll(depth_image, -15)
+            elif depth_offset_percentage <= 30:
+                depth_image = np.roll(depth_image, 15)
+                
             
             depth_image = depth_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
             
@@ -187,8 +212,10 @@ class person_comparison:
                         
             elif(count == 20 and person_h == False):
                 count = 0
+                print "Section 2"
             elif(count > 20):
                 video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
+                print "Section 3"
                 options[choice](base_image, video_image, depth_image)
     
 #                cv2.imshow("Live Image", video_image)
@@ -197,5 +224,4 @@ class person_comparison:
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
 rospy.spin()
-
 cv2.destroyAllWindows()
