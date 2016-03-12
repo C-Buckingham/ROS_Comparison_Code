@@ -52,7 +52,7 @@ class person_comparison:
             queue_size=1
         )
 
-        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub, detections_image_sub], 100, 0.1)
+        ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub, detections_image_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
     def colour_Matching(base_image, video_image, depth_image):     
@@ -100,7 +100,7 @@ class person_comparison:
 ##        print '===='
 #        print ('hsv: ', hsv_avg_correlation)
 
-        if bgr_avg_correlation > 0.90:# or hsv_avg_correlation > 0.85:
+        if bgr_avg_correlation > 0.85:# or hsv_avg_correlation > 0.85:
             cv2.imshow("Live Image", video_image)
             cv2.imshow("Base Image", base_image)
             print 'Same'
