@@ -13,7 +13,6 @@ class training:
 
     def __init__(self):
         cv2.namedWindow("Live Image", 1)
-        cv2.namedWindow("Base Image", 1)
         cv2.startWindowThread()
         self.bridge = CvBridge()
 
@@ -56,6 +55,7 @@ class training:
 
         video_image = video_image[person_y:(person_y+person_w)*2, person_x:person_x+person_h]
 
+        cv2.imshow("Live Image", video_image)
         
 
 training()
