@@ -3,8 +3,8 @@
 import rospy
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-import re
+# import matplotlib.pyplot as plt
+# import re
 from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
@@ -14,7 +14,7 @@ tmp_array = np.array([0, 0, 0])
 line_count = 0
 
 with open('Output.txt', 'r') as text_file:
-    data=text_file.read().replace('\n', '')
+    data = text_file.read().replace('\n', '')
     data = data.replace('.', '')
     data = data.replace('[', '')
     data = data.replace(']', '')
