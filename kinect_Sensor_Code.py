@@ -4,29 +4,32 @@ import rospy
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import re
 from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
 
-tmp_array = [0, 0, 0]
+tmp_array = np.array([0, 0, 0])
 line_count = 0
 
-file_hist_values = open("Output.txt")
-print file_hist_values
-
-for line in file_hist_values:
-    if file_hist_values == "===" or file_hist_values == "+++":
-        print line
-    else:
-        line_count = line_count + 1
-        tmp_array[line_count] = line
+with open('Output.txt', 'r') as text_file:
+    data=text_file.read().replace('\n', '')
+    data = data.replace('.', '')
+    data = data.replace('[', '')
+    data = data.replace(']', '')
+    data = data.split("===")
+    data = ''.join(data)
+    data = data.split("+++")
+    data = np.asarray(data)
+    data = filter(None, data)
+    ar = data[0]
+    ar = ar.split(' ')
+    ar = np.asarray(ar)
+    ar = filter(None, ar)
+    ar = np.asarray(ar)
     
-print tmp_array
-
 count = 0
-max_Values = [0, 0, 0]
-min_Values = [1, 1, 1]
 combined_hist_values = [0, 0, 0]
 base_image = []
 
@@ -85,6 +88,7 @@ class person_comparison:
         hsv_comparison_result = []
         for x in range (0, 3):
             bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [1,256])
+            print type(bgr_video_image_hist)
             bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [1,256])
             combined_hist_values[x] = bgr_video_image_hist 
             bgr_comparison_result.append(cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))         
@@ -103,7 +107,7 @@ class person_comparison:
 #            text_file.write("\nHistogram: %s"% combined_hist_values)
 
 #        print ('bgr: ', bgr_avg_correlation)
-##        print '===='
+#        print '===='
 #        print ('hsv: ', hsv_avg_correlation)
 
         if bgr_avg_correlation > 0.85:# or hsv_avg_correlation > 0.85:
@@ -225,10 +229,10 @@ rospy.init_node('person_comparison', anonymous=True)
 rospy.spin()
 cv2.destroyAllWindows()
 with open("Output.txt", "a") as text_file:
-    text_file.write("===\n")
+    text_file.write("=\n")
     
 for x in range(0, 3):
     with open("Output.txt", "a") as text_file:
-        text_file.write("+++")        
+        text_file.write("+")        
         text_file.write("\n%s"%combined_hist_values[x])
         text_file.write("\n")
