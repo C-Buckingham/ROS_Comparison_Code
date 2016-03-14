@@ -120,7 +120,7 @@ class person_comparison:
         print '==='
 #        print "Section 9"
 
-    def feature_Matching():
+    def feature_Matching(base_image, video_image, depth_image):
         print "Feature Matching"
 
         kp1, des1 = orb.detectAndCompute(video_image,None)
