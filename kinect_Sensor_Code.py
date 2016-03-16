@@ -13,11 +13,18 @@ tmp_array = np.array([0, 0, 0])
 line_count = 0
 number_of_classes = 0
 choice = ""
+data_array = np.array([0])
+blue_data_list = []
+green_data_list = []
+red_data_list = []
+class_number = []
 
 with open("Output.txt", "r") as text_file:
     for line in text_file:
         if line == "=\n":
             number_of_classes += 1
+
+print "Reading in data file...\n"
 
 if number_of_classes > 0:
     with open('Output.txt', 'r') as text_file:
@@ -28,36 +35,33 @@ if number_of_classes > 0:
         data = data.split("=")
         data = np.asarray(data)
         data = filter(None, data)
-        print len(data)
         for x in range(0, number_of_classes):
+            class_number.append(x)
             data[x] = data[x].split('+')
-            print data[x]
-
-        #data = np.asarray(data)
-        data = filter(None, data)
-
-        print data
-        # data = ''.join(data)
-        # print len(data)
-        # data = data.split("+")
-        # data = np.asarray(data)
-        # data = filter(None, data)
-        # ar = data[0]
-        # ar = ar.split(' ')
-        # ar = np.asarray(ar)
-        # ar = filter(None, ar)
-        # ar = np.asarray(ar)
+            tmp = data[x]
+            data_array = np.asarray(tmp)
+            data_array = filter(None, data_array)
+            data[x] = data_array
+            split_data = data[x]
+            for y in range(0, len(split_data)):
+                if y == 0:
+                    blue_data_list.append(split_data[y])
+                elif y == 1:
+                    green_data_list.append(split_data[y])
+                else:
+                    red_data_list.append(split_data[y])
 
 count = 0
 combined_hist_values = [0, 0, 0]
 base_image = []
+
+print "Finished reading data file.", len(class_number), "class(es) found.\n"
 
 while choice != 'F' and choice != 'C':
     choice = raw_input('Choose between Feature Matching (F) or Colour Matching (C): ')
     print choice
     if choice != 'F' and choice != 'C':
         print "You must enter either ""C"" for Colour Matching or ""F"" for feature matching."
-
 
 def draw_matches(img1, kp1, img2, kp2, matches, color=None):
     """Draws lines between matching keypoints of two images.
@@ -299,7 +303,6 @@ class person_comparison:
                     video_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
                     cv2.imshow("Base Image", base_image)
                     options[choice](base_image, video_image, depth_image)
-
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
