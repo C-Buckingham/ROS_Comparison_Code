@@ -8,6 +8,7 @@ from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
+# from sklearn import tree
 
 tmp_array = np.array([0, 0, 0])
 line_count = 0
