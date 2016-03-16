@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
-# from sklearn import tree
+from sklearn import tree
 
 tmp_array = np.array([0, 0, 0])
 line_count = 0
@@ -47,11 +47,28 @@ if number_of_classes > 0:
             for y in range(0, len(split_data)):
                 if y == 0:
                     blue_data_list.append(split_data[y])
-                    print blue_data_list
                 elif y == 1:
                     green_data_list.append(split_data[y])
                 else:
                     red_data_list.append(split_data[y])
+
+# hist_array = np.asarray((blue_data_list, green_data_list, red_data_list))
+class_number = np.asarray(class_number)
+hist_array = np.asarray(blue_data_list)
+
+print len(hist_array)
+print len(class_number)
+
+x = [0, 0]
+
+print class_number
+print x
+print len(x)
+# print hist_array[][][][0]
+
+clf = tree.DecisionTreeClassifier()
+
+clf = clf.fit(class_number[0], hist_array)
 
 count = 0
 combined_hist_values = [0, 0, 0]
