@@ -17,6 +17,7 @@ from cv_bridge import CvBridge, CvBridgeError
 #img2 = cv2.drawKeypoints(img,kp,color=(0,255,0), flags=0)
 #plt.imshow(img2),plt.show()
 
+
 def draw_matches(img1, kp1, img2, kp2, matches, color=None): 
     """Draws lines between matching keypoints of two images.  
     Keypoints not in a matching pair are not drawn.
@@ -83,24 +84,24 @@ class image_converter:
             video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
         except CvBridgeError, e:
             print e
-        base_image  = cv2.imread('/home/chris/catkin_ws/src/ROS_Comparison_Code/Base.jpg')    
+        base_image = cv2.imread('/home/chris/catkin_ws/src/ROS_Comparison_Code/Base.jpg')
         
         orb = cv2.ORB()
 
-        kp1, des1 = orb.detectAndCompute(video_image,None)
+        kp1, des1 = orb.detectAndCompute(video_image, None)
         kp2, des2 = orb.detectAndCompute(base_image, None)
         
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         
-        matches = bf.match(des1,des2)
+        matches = bf.match(des1, des2)
 
-        matches = sorted(matches, key = lambda x:x.distance)
+        matches = sorted(matches, key=lambda x: x.distance)
         
         video_image = draw_matches(video_image,kp1,base_image,kp2,matches[:10])
         
 #        kp1, des = orb.compute(video_image, kp1)
 
-#        video_image = cv2.drawKeypoints(video_image,kp1,color=(0,255,0), base_image,kp2,color(0,255,0), flags=0)
+        #video_image = cv2.drawKeypoints(video_image,kp1,color=(0,255,0), base_image,kp2,color(0,255,0), flags=0)
         
         cv2.imshow("Image window", video_image)  
         
