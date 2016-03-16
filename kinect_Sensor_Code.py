@@ -46,6 +46,7 @@ if number_of_classes > 0:
             for y in range(0, len(split_data)):
                 if y == 0:
                     blue_data_list.append(split_data[y])
+                    print blue_data_list
                 elif y == 1:
                     green_data_list.append(split_data[y])
                 else:
