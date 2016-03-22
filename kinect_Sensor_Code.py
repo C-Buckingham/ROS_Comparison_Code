@@ -8,6 +8,7 @@ from sensor_msgs.msg import Image
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
+from multiprocessing.pool import ThreadPool
 from sklearn import tree
 
 tmp_array = np.array([0, 0, 0])
@@ -30,7 +31,6 @@ print "Reading in data file...\n"
 if number_of_classes > 0:
     with open('Output.txt', 'r') as text_file:
         data = text_file.read().replace('\n', '')
-        data = data.replace('.', '')
         data = data.replace('[', '')
         data = data.replace(']', '')
         data = data.split("=")
@@ -39,36 +39,20 @@ if number_of_classes > 0:
         for x in range(0, number_of_classes):
             class_number.append(x)
             data[x] = data[x].split('+')
-            tmp = data[x]
-            data_array = np.asarray(tmp)
-            data_array = filter(None, data_array)
-            data[x] = data_array
+            data[x] = np.asarray(data[x])
+            data[x] = filter(None, data[x])
             split_data = data[x]
-            for y in range(0, len(split_data)):
+            for y in range(0, len(data)):
                 if y == 0:
-                    blue_data_list.append(split_data[y])
+                    blue_data_list.append(data[y])
                 elif y == 1:
-                    green_data_list.append(split_data[y])
+                    green_data_list.append(data[y])
                 else:
-                    red_data_list.append(split_data[y])
+                    red_data_list.append(data[y])
 
 # hist_array = np.asarray((blue_data_list, green_data_list, red_data_list))
 class_number = np.asarray(class_number)
 hist_array = np.asarray(blue_data_list)
-
-print len(hist_array)
-print len(class_number)
-
-x = [0, 0]
-
-print class_number
-print x
-print len(x)
-# print hist_array[][][][0]
-
-clf = tree.DecisionTreeClassifier()
-
-clf = clf.fit(class_number[0], hist_array)
 
 count = 0
 combined_hist_values = [0, 0, 0]
@@ -78,7 +62,6 @@ print "Finished reading data file.", len(class_number), "class(es) found.\n"
 
 while choice != 'F' and choice != 'C':
     choice = raw_input('Choose between Feature Matching (F) or Colour Matching (C): ')
-    print choice
     if choice != 'F' and choice != 'C':
         print "You must enter either ""C"" for Colour Matching or ""F"" for feature matching."
 
@@ -180,39 +163,38 @@ class person_comparison:
 
         bgr_comparison_result = []
         hsv_comparison_result = []
-        for x in range(0, 3):
-            bgr_video_image_hist = cv2.calcHist([video_image], [x], None, [256], [1, 256])
-            print type(bgr_video_image_hist)
-            bgr_base_image_hist = cv2.calcHist([base_image], [x], None, [256], [1, 256])
-            combined_hist_values[x] = bgr_video_image_hist
+        for z in range(0, 3):
+            bgr_video_image_hist = cv2.calcHist([video_image], [z], None, [256], [1, 256])
+            bgr_base_image_hist = cv2.calcHist([base_image], [z], None, [256], [1, 256])
+            combined_hist_values[z] = bgr_video_image_hist.astype(int)
+
             bgr_comparison_result.append(
                 cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
 
-            if (x < 2):
-                hsv_video_image_hist = cv2.calcHist([hsv_video_image], [x], None, [256], [1, 256])
-                hsv_base_image_hist = cv2.calcHist([hsv_base_image], [x], None, [256], [1, 256])
+            if z < 2:
+                hsv_video_image_hist = cv2.calcHist([hsv_video_image], [z], None, [256], [1, 256])
+                hsv_base_image_hist = cv2.calcHist([hsv_base_image], [z], None, [256], [1, 256])
                 hsv_comparison_result.append(
                     cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
 
+        print bgr_comparison_result
         bgr_avg_correlation = np.mean(bgr_comparison_result)
         hsv_avg_correlation = np.mean(hsv_comparison_result)
 
-        #        with open("Output.txt", "a") as text_file:
-        #            text_file.write("\nMin BGR Value: %s"% min_Values)
-        #            text_file.write("\nMax BGR Value: %s"% max_Values)
-        #            text_file.write("\nHistogram: %s"% combined_hist_values)
+        return bgr_avg_correlation
 
-        #        print ('bgr: ', bgr_avg_correlation)
-        #        print '===='
-        #        print ('hsv: ', hsv_avg_correlation)
-
-        if bgr_avg_correlation > 0.85:  # or hsv_avg_correlation > 0.85:
-            cv2.imshow("Live Image", video_image)
-            print 'Same'
-        else:
-            print 'Different'
-
-        print '==='
+        # if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.90:
+        #     cv2.imshow("Live Image", video_image)
+        #     print 'Same'
+        #     print bgr_avg_correlation
+        #     print hsv_avg_correlation
+        # else:
+        #
+        #     print 'Different'
+        #     print bgr_avg_correlation
+        #     print hsv_avg_correlation
+        #
+        # print '==='
 
     #        print "Section 9"
 
@@ -257,6 +239,8 @@ class person_comparison:
         global choice
         global base_image
 
+        result = []
+
         combined_hist_values = [0, 0, 0]
 
         #        try:
@@ -268,8 +252,6 @@ class person_comparison:
 
         if len(person.height) > 0:
             for x in range(0, len(person.height)):
-
-                print count
 
                 try:
                     video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
@@ -311,27 +293,46 @@ class person_comparison:
                 #            depth_image = np.where(depth_image > person.median_depth[x]*1.50, 1, 0)
                 depth_image = np.reshape(depth_image, depth_image_shape)
 
-                if count == 20 and person_h:
+                if count == 10 and person_h:
                     base_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
                     for y in range(0, 3):
                         base_image[:, :, y] = base_image[:, :, y] * depth_image
 
-                elif count == 20 and not person_h:
+                elif count == 10 and not person_h:
                     count = 0
-                elif count > 20:
+                elif count > 10:
                     video_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
                     cv2.imshow("Base Image", base_image)
-                    options[choice](base_image, video_image, depth_image)
+                    result.append(options[choice](base_image, video_image, depth_image))
+
+                    print result
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
 rospy.spin()
 cv2.destroyAllWindows()
+
+max_values = np.array([0])
+max_values_index = np.array([0])
+
+for x in range(0, len(combined_hist_values)):
+    combined_hist_values[x] = map(int, combined_hist_values[x])
+    if x == 0:
+        max_values[x] = max(combined_hist_values[x])
+        max_values_index[x] = combined_hist_values.index(max_values)
+    elif x == 1:
+        max_values[x] = max(combined_hist_values[x])
+        max_values_index[x] = combined_hist_values.index(max_values[x])
+    else:
+        max_values[x] = max(combined_hist_values[x])
+        max_values_index[x] = combined_hist_values.index(max_values[x])
+
 with open("Output.txt", "a") as text_file:
     text_file.write("=\n")
 
 for x in range(0, 3):
     with open("Output.txt", "a") as text_file:
         text_file.write("+")
-        text_file.write("\n%s" % combined_hist_values[x])
+        text_file.write("\n%s" % max_values[x])
+        text_file.write("\n%s" % max_values_index[x])
         text_file.write("\n")
