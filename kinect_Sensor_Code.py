@@ -9,7 +9,7 @@ from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
 from multiprocessing.pool import ThreadPool
-from sklearn import tree
+# from sklearn import tree
 
 tmp_array = np.array([0, 0, 0])
 line_count = 0
@@ -149,6 +149,17 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
+
+    # Function for the issue is here, it is not a complete working function, that is not the issue though
+    def person_Matching(result, video_image_list):
+        print result
+        if result[0][0] > 0.85:
+            print "Same"
+            cv2.imshow("Live Image", video_image_list[0])
+
+    def pm(self):
+        print ""
+
     def colour_Matching(base_image, video_image, depth_image):
 
         for y in range(0, 3):
@@ -177,11 +188,13 @@ class person_comparison:
                 hsv_comparison_result.append(
                     cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
 
-        print bgr_comparison_result
         bgr_avg_correlation = np.mean(bgr_comparison_result)
         hsv_avg_correlation = np.mean(hsv_comparison_result)
 
-        return bgr_avg_correlation
+        print bgr_avg_correlation
+        print hsv_avg_correlation
+
+        return bgr_avg_correlation, hsv_avg_correlation
 
         # if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.90:
         #     cv2.imshow("Live Image", video_image)
@@ -240,7 +253,7 @@ class person_comparison:
         global base_image
 
         result = []
-
+        video_image_list = []
         combined_hist_values = [0, 0, 0]
 
         #        try:
@@ -249,7 +262,6 @@ class person_comparison:
         #                print e
         #
         #        cv2.imshow("Original Image", original_image)
-
         if len(person.height) > 0:
             for x in range(0, len(person.height)):
 
@@ -302,10 +314,31 @@ class person_comparison:
                     count = 0
                 elif count > 10:
                     video_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
-                    cv2.imshow("Base Image", base_image)
-                    result.append(options[choice](base_image, video_image, depth_image))
+                    for y in range(0, 3):
+                        video_image[:, :, y] = video_image[:, :, y] * depth_image
 
-                    print result
+                    video_image_list.append(video_image)
+                    print len(video_image_list)
+                    cv2.imshow("Base Image", base_image)
+
+                for x in range(0, len(video_image_list)):
+                    cv2.imshow("Live Image", video_image_list[x])
+
+                    result.append(options[choice](base_image, video_image, depth_image))
+                    #
+                    #print result
+                
+                # Issue is here
+                person_Matching(result, video_image_list)
+
+                    # print max(result)
+                    # print result.index(max(result))
+                    #
+                    # if max(result) > 0.85:
+                    #     print "Same"
+                    #     cv2.imshow("Live Image", video_image)
+                    # else:
+                    #     print "Different"
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
