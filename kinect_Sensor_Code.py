@@ -20,6 +20,8 @@ blue_data_list = []
 green_data_list = []
 red_data_list = []
 class_number = []
+hist_pool = []
+hist_pool.append([])
 
 with open("Output.txt", "r") as text_file:
     for line in text_file:
@@ -139,7 +141,6 @@ class person_comparison:
             Image,
             queue_size=1
         )
-
         #        detections_image_sub = Subscriber(
         #            "/upper_body_detector/image",
         #            Image,
@@ -149,69 +150,64 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
-
-    # Function for the issue is here, it is not a complete working function, that is not the issue though
-    def person_Matching(result, video_image_list):
-        print result
-        if result[0][0] > 0.85:
-            print "Same"
-            cv2.imshow("Live Image", video_image_list[0])
-
-    def pm(self):
-        print ""
-
-    def colour_Matching(base_image, video_image, depth_image):
-
-        for y in range(0, 3):
-            video_image[:, :, y] = video_image[:, :, y] * depth_image
-
-        hsv_base_image = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
+    def colour_Matching(hist_pool, video_image):
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
 
-        global max_Values
-        global min_Values
-
+        bgr_video_image_hist_list = []
+        hsv_video_image_hist_list = []
+        bgr_video_image_hist_list.append([])
+        hsv_video_image_hist_list.append([])
         bgr_comparison_result = []
         hsv_comparison_result = []
-        for z in range(0, 3):
-            bgr_video_image_hist = cv2.calcHist([video_image], [z], None, [256], [1, 256])
-            bgr_base_image_hist = cv2.calcHist([base_image], [z], None, [256], [1, 256])
-            combined_hist_values[z] = bgr_video_image_hist.astype(int)
 
-            bgr_comparison_result.append(
-                cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
+        for z in range(0, len(hist_pool)):
+            for a in range(0, 3):
+                bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
+                # combined_hist_values[z] = bgr_video_image_hist.astype(int)
 
-            if z < 2:
-                hsv_video_image_hist = cv2.calcHist([hsv_video_image], [z], None, [256], [1, 256])
-                hsv_base_image_hist = cv2.calcHist([hsv_base_image], [z], None, [256], [1, 256])
-                hsv_comparison_result.append(
-                    cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
+                if a == 0:
+                    blue = bgr_video_image_hist
+                elif a == 1:
+                    green = bgr_video_image_hist
+                else:
+                    red = bgr_video_image_hist
 
-        bgr_avg_correlation = np.mean(bgr_comparison_result)
-        hsv_avg_correlation = np.mean(hsv_comparison_result)
+                bgr_comparison_result.append(
+                    cv2.compareHist(bgr_video_image_hist, hist_pool[z][0][a], cv2.cv.CV_COMP_CORREL))
 
-        print bgr_avg_correlation
-        print hsv_avg_correlation
+                if a < 2:
 
-        return bgr_avg_correlation, hsv_avg_correlation
+                    hsv_video_image_hist = cv2.calcHist([hsv_video_image], [a], None, [256], [1, 256])
+                    if a == 0:
+                        hue = hsv_video_image_hist
+                    elif a == 1:
+                        sat = hsv_video_image_hist
 
-        # if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.90:
-        #     cv2.imshow("Live Image", video_image)
-        #     print 'Same'
-        #     print bgr_avg_correlation
-        #     print hsv_avg_correlation
-        # else:
-        #
-        #     print 'Different'
-        #     print bgr_avg_correlation
-        #     print hsv_avg_correlation
-        #
-        # print '==='
+                    hsv_comparison_result.append(
+                        cv2.compareHist(hsv_video_image_hist, hist_pool[z][1][a], cv2.cv.CV_COMP_CORREL))
 
-    #        print "Section 9"
+            bgr_avg_correlation = np.mean(bgr_comparison_result)
+            hsv_avg_correlation = np.mean(hsv_comparison_result)
 
-    def feature_Matching(base_image, video_image, depth_image):
+            print bgr_avg_correlation
+            print hsv_avg_correlation
+
+            if bgr_avg_correlation > 0.85:
+                cv2.imshow("Live Image", video_image)
+                print "Match Found!"
+            else:
+                print "No Match Found"
+                bgr_video_image_hist_list[0].append(blue)
+                bgr_video_image_hist_list[0].append(green)
+                bgr_video_image_hist_list[0].append(red)
+
+                hsv_video_image_hist_list[0].append(hue)
+                hsv_video_image_hist_list[0].append(sat)
+
+        return  bgr_video_image_hist_list, hsv_video_image_hist_list
+
+    def feature_Matching(base_image, video_image):
         print "Feature Matching"
 
         orb = cv2.ORB()
@@ -251,17 +247,11 @@ class person_comparison:
         global count
         global choice
         global base_image
+        global hist_pool
 
         result = []
         video_image_list = []
-        combined_hist_values = [0, 0, 0]
 
-        #        try:
-        #            original_image = self.bridge.imgmsg_to_cv2(detect_img, "bgr8")
-        #        except CvBridgeError, e:
-        #                print e
-        #
-        #        cv2.imshow("Original Image", original_image)
         if len(person.height) > 0:
             for x in range(0, len(person.height)):
 
@@ -286,7 +276,6 @@ class person_comparison:
                 count += 1
 
                 depth_offset_percentage = float(person_x / 640.0 * 100.0)
-                #            print depth_offset_percentage
 
                 depth_image = depth_image.transpose()
                 depth_image = np.roll(depth_image, 35)
@@ -307,8 +296,21 @@ class person_comparison:
 
                 if count == 10 and person_h:
                     base_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
+                    base_hsv = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
+
+                    tmp_bgr_hist_store = []
+                    tmp_hsv_hist_store = []
+
                     for y in range(0, 3):
                         base_image[:, :, y] = base_image[:, :, y] * depth_image
+
+                        tmp_bgr_hist_store.append(cv2.calcHist([base_image], [y], None, [256], [1, 256]))
+
+                        tmp_hsv_hist_store.append(cv2.calcHist([cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)],
+                                                          [y], None, [256], [1, 256]))
+
+                    hist_pool[0].append(tmp_bgr_hist_store)
+                    hist_pool[0].append(tmp_hsv_hist_store)
 
                 elif count == 10 and not person_h:
                     count = 0
@@ -318,27 +320,24 @@ class person_comparison:
                         video_image[:, :, y] = video_image[:, :, y] * depth_image
 
                     video_image_list.append(video_image)
+
                     print len(video_image_list)
                     cv2.imshow("Base Image", base_image)
 
-                for x in range(0, len(video_image_list)):
-                    cv2.imshow("Live Image", video_image_list[x])
+                    print len(hist_pool)
 
-                    result.append(options[choice](base_image, video_image, depth_image))
-                    #
-                    #print result
-                
+                    hist_pool.append(options[choice](hist_pool, video_image))
+
                 # Issue is here
-                person_Matching(result, video_image_list)
+                #self.person_Matching(result, video_image_list)
 
-                    # print max(result)
-                    # print result.index(max(result))
-                    #
-                    # if max(result) > 0.85:
-                    #     print "Same"
-                    #     cv2.imshow("Live Image", video_image)
-                    # else:
-                    #     print "Different"
+            # for x in range(0, len(result)):
+            #     print len(result)
+            #     if max(result[x]) > 0.85:
+            #         cv2.imshow("Live Image", video_image_list[x])
+            #         print "Match Found!"
+            #     else:
+            #         print "No Match Found"
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
