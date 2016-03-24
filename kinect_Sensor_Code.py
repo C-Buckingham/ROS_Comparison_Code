@@ -21,7 +21,6 @@ green_data_list = []
 red_data_list = []
 class_number = []
 hist_pool = []
-hist_pool.append([])
 
 with open("Output.txt", "r") as text_file:
     for line in text_file:
@@ -156,12 +155,11 @@ class person_comparison:
 
         bgr_video_image_hist_list = []
         hsv_video_image_hist_list = []
-        bgr_video_image_hist_list.append([])
-        hsv_video_image_hist_list.append([])
-        bgr_comparison_result = []
-        hsv_comparison_result = []
 
-        for z in range(0, len(hist_pool)):
+        for z in range(0, len(hist_pool)-1):
+            bgr_comparison_result = []
+            hsv_comparison_result = []
+
             for a in range(0, 3):
                 bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
                 # combined_hist_values[z] = bgr_video_image_hist.astype(int)
@@ -198,14 +196,15 @@ class person_comparison:
                 print "Match Found!"
             else:
                 print "No Match Found"
+                bgr_video_image_hist_list.append([])
+                hsv_video_image_hist_list.append([])
                 bgr_video_image_hist_list[0].append(blue)
                 bgr_video_image_hist_list[0].append(green)
                 bgr_video_image_hist_list[0].append(red)
-
                 hsv_video_image_hist_list[0].append(hue)
                 hsv_video_image_hist_list[0].append(sat)
 
-        return  bgr_video_image_hist_list, hsv_video_image_hist_list
+        return bgr_video_image_hist_list, hsv_video_image_hist_list
 
     def feature_Matching(base_image, video_image):
         print "Feature Matching"
@@ -248,6 +247,8 @@ class person_comparison:
         global choice
         global base_image
         global hist_pool
+
+        hist_pool_location = 0
 
         result = []
         video_image_list = []
@@ -306,9 +307,11 @@ class person_comparison:
 
                         tmp_bgr_hist_store.append(cv2.calcHist([base_image], [y], None, [256], [1, 256]))
 
-                        tmp_hsv_hist_store.append(cv2.calcHist([cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)],
+                        if y < 2:
+                            tmp_hsv_hist_store.append(cv2.calcHist([cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)],
                                                           [y], None, [256], [1, 256]))
 
+                    hist_pool.append([])
                     hist_pool[0].append(tmp_bgr_hist_store)
                     hist_pool[0].append(tmp_hsv_hist_store)
 
@@ -326,10 +329,24 @@ class person_comparison:
 
                     print len(hist_pool)
 
-                    hist_pool.append(options[choice](hist_pool, video_image))
+                    hist_pool_location += 1
 
-                # Issue is here
-                #self.person_Matching(result, video_image_list)
+                    hist_pool.append([])
+
+                    hist_pool[hist_pool_location].append(options[choice](hist_pool, video_image))
+
+                    # temp = []
+                    # temph = []
+                    #
+                    # temp.append(blue)
+                    # temp.append(green)
+                    # temp.append(red)
+                    #
+                    # temph.append(hue)
+                    # temph.append(sat)
+
+                    # hist_pool[hist_pool_location].append(temp)
+                    # hist_pool[hist_pool_location].append(temph)
 
             # for x in range(0, len(result)):
             #     print len(result)
