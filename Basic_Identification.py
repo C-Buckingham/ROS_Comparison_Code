@@ -108,7 +108,7 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
-    def colour_Matching(base_image, base_hsv, video_image):
+    def colour_Matching(base_image_hist, base_hsv_hist, video_image):
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
         bgr_comparison_result = []
@@ -117,19 +117,17 @@ class person_comparison:
         for a in range(0, 3):
             bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
             bgr_comparison_result.append(
-                cv2.compareHist(bgr_video_image_hist, base_image, cv2.cv.CV_COMP_CORREL))
+                cv2.compareHist(bgr_video_image_hist, base_image_hist, cv2.cv.CV_COMP_CORREL))
 
             if a < 2:
                 hsv_video_image_hist = cv2.calcHist([hsv_video_image], [a], None, [256], [1, 256])
                 hsv_comparison_result.append(
-                    cv2.compareHist(hsv_video_image_hist, base_hsv, cv2.cv.CV_COMP_CORREL))
+                    cv2.compareHist(hsv_video_image_hist, base_hsv_hist, cv2.cv.CV_COMP_CORREL))
 
         bgr_avg_correlation = np.mean(bgr_comparison_result)
         hsv_avg_correlation = np.mean(hsv_comparison_result)
 
-        print bgr_avg_correlation
-
-        if bgr_avg_correlation > 0.85:
+        if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.80:
             cv2.imshow("Live Image", video_image)
             print "Match Found!"
         else:
