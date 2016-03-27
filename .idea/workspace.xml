@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="46f43596-2fd3-43cc-bcc7-dda297c8df89" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.spyderworkspace" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Base.jpg" afterPath="$PROJECT_DIR$/Older Files/Base.jpg" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Base_Image.png" afterPath="$PROJECT_DIR$/Older Files/Base_Image.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ORB_Test_Code.py" afterPath="$PROJECT_DIR$/Older Files/ORB_Test_Code.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Person_Detection_Test_Code.py" afterPath="$PROJECT_DIR$/Older Files/Person_Detection_Test_Code.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Progress 2.mp4" afterPath="$PROJECT_DIR$/Older Files/Progress 2.mp4" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Progress Demo.ogv" afterPath="$PROJECT_DIR$/Older Files/Progress Demo.ogv" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/Older Files/README.md" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Screenshot from 2016-03-15 13:55:52.png" afterPath="$PROJECT_DIR$/Older Files/Screenshot from 2016-03-15 13:55:52.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/background_Removal.py" afterPath="$PROJECT_DIR$/Older Files/background_Removal.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/python_Comparison_Code.py" afterPath="$PROJECT_DIR$/Older Files/python_Comparison_Code.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Histogram Pool.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/training_Code.py" afterPath="$PROJECT_DIR$/Add_Person_To_Pool.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ROS_Comparison_Code.iws" />
@@ -28,8 +19,9 @@
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/ROS_Comparison_Code$Test.coverage" NAME="Test Coverage Results" MODIFIED="1458222311951" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ROS_Comparison_Code$Basic_Identification.coverage" NAME="Basic_Identification Coverage Results" MODIFIED="1459091420526" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ROS_Comparison_Code$Basic_Identification.coverage" NAME="Basic_Identification Coverage Results" MODIFIED="1459092800641" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ROS_Comparison_Code$tfv.coverage" NAME="tfv Coverage Results" MODIFIED="1459091247595" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ROS_Comparison_Code$training_Code.coverage" NAME="training_Code Coverage Results" MODIFIED="1459094288223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ROS_Comparison_Code$ORB_Test_Code.coverage" NAME="ORB_Test_Code Coverage Results" MODIFIED="1458050322774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ROS_Comparison_Code$plot_iris1.coverage" NAME="plot_iris1 Coverage Results" MODIFIED="1458131858410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/media/psf/Home/Downloads" />
     <SUITE FILE_PATH="coverage/ROS_Comparison_Code$kinect_Sensor_Code.coverage" NAME="kinect_Sensor_Code Coverage Results" MODIFIED="1459089833742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -43,11 +35,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="kinect_Sensor_Code.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+      <file leaf-file-name="Advanced_Identification.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="337" column="52" selection-start-line="337" selection-start-column="52" selection-end-line="337" selection-end-column="52" />
+            <state relative-caret-position="684">
+              <caret line="390" column="24" selection-start-line="390" selection-start-column="24" selection-end-line="390" selection-end-column="33" />
               <folding>
                 <element signature="e#23#35#0" expanded="true" />
               </folding>
@@ -55,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Basic_Identification.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Basic_Identification.py">
+      <file leaf-file-name="Add_Person_To_Pool.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Add_Person_To_Pool.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="129" column="66" selection-start-line="129" selection-start-column="66" selection-end-line="129" selection-end-column="66" />
+            <state relative-caret-position="432">
+              <caret line="88" column="0" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
               <folding>
                 <element signature="e#23#35#0" expanded="true" />
               </folding>
@@ -88,6 +80,8 @@
         <option value="$PROJECT_DIR$/kinect_Sensor_Code.py" />
         <option value="$PROJECT_DIR$/tfv.py" />
         <option value="$PROJECT_DIR$/Basic_Identification.py" />
+        <option value="$PROJECT_DIR$/training_Code.py" />
+        <option value="$PROJECT_DIR$/Add_Person_To_Pool.py" />
       </list>
     </option>
   </component>
@@ -178,7 +172,7 @@
       <recent name="$PROJECT_DIR$/Older Files" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Basic_Identification">
+  <component name="RunManager" selected="Python.training_Code">
     <configuration default="false" name="kinect_Sensor_Code" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -192,25 +186,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="ROS_Comparison_Code" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/kinect_Sensor_Code.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="plot_iris1" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="/media/psf/Home/Downloads" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ROS_Comparison_Code" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="/media/psf/Home/Downloads/plot_iris1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Advanced_Identification.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -265,6 +241,24 @@
       <module name="ROS_Comparison_Code" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tfv.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="training_Code" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ROS_Comparison_Code" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Add_Person_To_Pool.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -479,18 +473,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.kinect_Sensor_Code" />
-      <item index="1" class="java.lang.String" itemvalue="Python.plot_iris1" />
-      <item index="2" class="java.lang.String" itemvalue="Python.Test" />
-      <item index="3" class="java.lang.String" itemvalue="Python.Basic_Identification" />
-      <item index="4" class="java.lang.String" itemvalue="Python.tfv" />
+      <item index="1" class="java.lang.String" itemvalue="Python.Test" />
+      <item index="2" class="java.lang.String" itemvalue="Python.Basic_Identification" />
+      <item index="3" class="java.lang.String" itemvalue="Python.tfv" />
+      <item index="4" class="java.lang.String" itemvalue="Python.training_Code" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.Basic_Identification" />
-        <item index="1" class="java.lang.String" itemvalue="Python.tfv" />
-        <item index="2" class="java.lang.String" itemvalue="Python.kinect_Sensor_Code" />
-        <item index="3" class="java.lang.String" itemvalue="Python.Test" />
-        <item index="4" class="java.lang.String" itemvalue="Python.plot_iris1" />
+        <item index="0" class="java.lang.String" itemvalue="Python.training_Code" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Basic_Identification" />
+        <item index="2" class="java.lang.String" itemvalue="Python.tfv" />
+        <item index="3" class="java.lang.String" itemvalue="Python.kinect_Sensor_Code" />
+        <item index="4" class="java.lang.String" itemvalue="Python.Test" />
       </list>
     </recent_temporary>
   </component>
@@ -571,7 +565,21 @@
       <option name="project" value="LOCAL" />
       <updated>1459091486426</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Cleaned up files.">
+      <created>1459092431109</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1459092431109</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Cleaned up naming conventions">
+      <created>1459092528505</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1459092528505</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TodoView">
@@ -629,7 +637,9 @@
     <MESSAGE value="Created a Basic_identification program. Similar to the main code but a lot more simple." />
     <MESSAGE value="Fixed the code to work." />
     <MESSAGE value="Finalised the percentage match to consider the same." />
-    <option name="LAST_COMMIT_MESSAGE" value="Finalised the percentage match to consider the same." />
+    <MESSAGE value="Cleaned up files." />
+    <MESSAGE value="Cleaned up naming conventions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned up naming conventions" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -640,7 +650,7 @@
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
-          <url>file://$PROJECT_DIR$/kinect_Sensor_Code.py</url>
+          <url>file://$PROJECT_DIR$/Advanced_Identification.py</url>
           <line>360</line>
           <option name="timeStamp" value="88" />
         </line-breakpoint>
@@ -655,12 +665,12 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="114" />
+      <option name="time" value="115" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -670,7 +680,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -704,7 +714,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -738,7 +748,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -756,7 +766,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -774,7 +784,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -792,7 +802,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -802,7 +812,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -812,7 +822,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -822,7 +832,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -832,7 +842,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -849,7 +859,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -859,7 +869,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -869,7 +879,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -879,7 +889,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -981,38 +991,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///opt/ros/indigo/lib/python2.7/dist-packages/message_filters/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="603">
-          <caret line="228" column="0" selection-start-line="228" selection-start-column="0" selection-end-line="228" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/kinect_Sensor_Code.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="337" column="52" selection-start-line="337" selection-start-column="52" selection-end-line="337" selection-end-column="52" />
-          <folding>
-            <element signature="e#23#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tfv.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-864">
           <caret line="27" column="23" selection-start-line="27" selection-start-column="23" selection-end-line="27" selection-end-column="23" />
           <folding>
-            <element signature="e#23#35#0" expanded="true" />
+            <element signature="e#23#35#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Basic_Identification.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="129" column="66" selection-start-line="129" selection-start-column="66" selection-end-line="129" selection-end-column="66" />
+        <state relative-caret-position="-1656">
+          <caret line="23" column="59" selection-start-line="23" selection-start-column="59" selection-end-line="23" selection-end-column="59" />
+          <folding>
+            <element signature="e#23#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///opt/ros/indigo/lib/python2.7/dist-packages/message_filters/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="227" column="0" selection-start-line="227" selection-start-column="0" selection-end-line="227" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Advanced_Identification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="684">
+          <caret line="390" column="24" selection-start-line="390" selection-start-column="24" selection-end-line="390" selection-end-column="33" />
+          <folding>
+            <element signature="e#23#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Add_Person_To_Pool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="88" column="0" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
           <folding>
             <element signature="e#23#35#0" expanded="true" />
           </folding>
