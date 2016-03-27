@@ -153,12 +153,17 @@ class person_comparison:
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
 
+        list_location_counter = 0
+
         bgr_video_image_hist_list = []
         hsv_video_image_hist_list = []
 
-        for z in range(0, len(hist_pool)-1):
+        for z in range(0, len(hist_pool)):
             bgr_comparison_result = []
             hsv_comparison_result = []
+
+            print z
+            print "+++++"
 
             for a in range(0, 3):
                 bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
@@ -188,21 +193,20 @@ class person_comparison:
             bgr_avg_correlation = np.mean(bgr_comparison_result)
             hsv_avg_correlation = np.mean(hsv_comparison_result)
 
-            print bgr_avg_correlation
-            print hsv_avg_correlation
-
             if bgr_avg_correlation > 0.85:
                 cv2.imshow("Live Image", video_image)
                 print "Match Found!"
+                return bgr_video_image_hist_list, hsv_video_image_hist_list
             else:
                 print "No Match Found"
                 bgr_video_image_hist_list.append([])
                 hsv_video_image_hist_list.append([])
-                bgr_video_image_hist_list[0].append(blue)
-                bgr_video_image_hist_list[0].append(green)
-                bgr_video_image_hist_list[0].append(red)
-                hsv_video_image_hist_list[0].append(hue)
-                hsv_video_image_hist_list[0].append(sat)
+                bgr_video_image_hist_list[list_location_counter].append(blue)
+                bgr_video_image_hist_list[list_location_counter].append(green)
+                bgr_video_image_hist_list[list_location_counter].append(red)
+                hsv_video_image_hist_list[list_location_counter].append(hue)
+                hsv_video_image_hist_list[list_location_counter].append(sat)
+                list_location_counter += 1
 
         return bgr_video_image_hist_list, hsv_video_image_hist_list
 
@@ -327,13 +331,22 @@ class person_comparison:
                     print len(video_image_list)
                     cv2.imshow("Base Image", base_image)
 
-                    print len(hist_pool)
+                    print "Hist Pool Length: ", len(hist_pool)
 
-                    hist_pool_location += 1
+                    print "============"
 
-                    hist_pool.append([])
+                    tmp = options[choice](hist_pool, video_image)
 
-                    hist_pool[hist_pool_location].append(options[choice](hist_pool, video_image))
+                    # if len(hist_pool) > 2:
+                    #     print ""
+
+                    if tmp[0] != []:
+                        hist_pool_location += 1
+
+                        hist_pool.append([])
+
+                        hist_pool[hist_pool_location].append(tmp[0][0])
+                        hist_pool[hist_pool_location].append(tmp[1][0])
 
                     # temp = []
                     # temph = []
@@ -348,13 +361,6 @@ class person_comparison:
                     # hist_pool[hist_pool_location].append(temp)
                     # hist_pool[hist_pool_location].append(temph)
 
-            # for x in range(0, len(result)):
-            #     print len(result)
-            #     if max(result[x]) > 0.85:
-            #         cv2.imshow("Live Image", video_image_list[x])
-            #         print "Match Found!"
-            #     else:
-            #         print "No Match Found"
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
