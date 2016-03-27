@@ -101,5 +101,5 @@ with open("Histogram Pool.txt", "a") as text_file:
 
 for x in range(0, 3):
     with open("Histogram Pool.txt", "a") as text_file:
-        text_file.write("+")
+        text_file.write("?")
         text_file.write("\n%s\n" % bgr_hist[x])

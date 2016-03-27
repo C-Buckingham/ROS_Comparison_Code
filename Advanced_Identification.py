@@ -22,7 +22,7 @@ red_data_list = []
 class_number = []
 hist_pool = []
 
-with open("Output.txt", "r") as text_file:
+with open("Histogram Pool.txt", "r") as text_file:
     for line in text_file:
         if line == "=\n":
             number_of_classes += 1
@@ -30,26 +30,24 @@ with open("Output.txt", "r") as text_file:
 print "Reading in data file...\n"
 
 if number_of_classes > 0:
-    with open('Output.txt', 'r') as text_file:
+    with open('Histogram Pool.txt', 'r') as text_file:
         data = text_file.read().replace('\n', '')
-        data = data.replace('[', '')
-        data = data.replace(']', '')
         data = data.split("=")
         data = np.asarray(data)
         data = filter(None, data)
         for x in range(0, number_of_classes):
             class_number.append(x)
-            data[x] = data[x].split('+')
+            data[x] = data[x].split("?")
             data[x] = np.asarray(data[x])
             data[x] = filter(None, data[x])
             split_data = data[x]
-            for y in range(0, len(data)):
+            for y in range(0, 3):
                 if y == 0:
-                    blue_data_list.append(data[y])
+                    blue_data_list.append(data[x][y])
                 elif y == 1:
-                    green_data_list.append(data[y])
+                    green_data_list.append(data[x][y])
                 else:
-                    red_data_list.append(data[y])
+                    red_data_list.append(data[x][y])
 
 # hist_array = np.asarray((blue_data_list, green_data_list, red_data_list))
 class_number = np.asarray(class_number)
