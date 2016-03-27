@@ -16,6 +16,9 @@ choice = ""
 data_array = np.array([0])
 count = 0
 base_image = []
+base_hsv = []
+base_image_hist = []
+base_hsv_hist = []
 
 while choice != 'F' and choice != 'C':
     choice = raw_input('Choose between Feature Matching (F) or Colour Matching (C): ')
@@ -105,7 +108,7 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
-    def colour_Matching(hist_pool, video_image):
+    def colour_Matching(base_image, base_hsv, video_image):
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
         bgr_comparison_result = []
@@ -114,15 +117,17 @@ class person_comparison:
         for a in range(0, 3):
             bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
             bgr_comparison_result.append(
-                cv2.compareHist(bgr_video_image_hist, hist_pool[z][0][a], cv2.cv.CV_COMP_CORREL))
+                cv2.compareHist(bgr_video_image_hist, base_image, cv2.cv.CV_COMP_CORREL))
 
             if a < 2:
                 hsv_video_image_hist = cv2.calcHist([hsv_video_image], [a], None, [256], [1, 256])
                 hsv_comparison_result.append(
-                    cv2.compareHist(hsv_video_image_hist, hist_pool[z][1][a], cv2.cv.CV_COMP_CORREL))
+                    cv2.compareHist(hsv_video_image_hist, base_hsv, cv2.cv.CV_COMP_CORREL))
 
         bgr_avg_correlation = np.mean(bgr_comparison_result)
         hsv_avg_correlation = np.mean(hsv_comparison_result)
+
+        print bgr_avg_correlation
 
         if bgr_avg_correlation > 0.85:
             cv2.imshow("Live Image", video_image)
@@ -170,10 +175,9 @@ class person_comparison:
         global count
         global choice
         global base_image
-
-        hist_pool_location = 0
-
-        video_image_list = []
+        global base_hsv
+        global base_image_hist
+        global base_hsv_hist
 
         if len(person.height) > 0:
             for x in range(0, len(person.height)):
@@ -221,17 +225,13 @@ class person_comparison:
                     base_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
                     base_hsv = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
-                    tmp_bgr_hist_store = []
-                    tmp_hsv_hist_store = []
-
                     for y in range(0, 3):
                         base_image[:, :, y] = base_image[:, :, y] * depth_image
-
-                        tmp_bgr_hist_store.append(cv2.calcHist([base_image], [y], None, [256], [1, 256]))
+                        base_image_hist = cv2.calcHist([base_image], [y], None, [256], [1, 256])
 
                         if y < 2:
-                            tmp_hsv_hist_store.append(cv2.calcHist([cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)],
-                                                          [y], None, [256], [1, 256]))
+                            base_hsv[:, :, y] = base_hsv[:, :, y] * depth_image
+                            base_hsv_hist = cv2.calcHist([base_hsv], [y], None, [256], [1, 256])
 
                 elif count == 10 and not person_h:
                     count = 0
@@ -242,7 +242,7 @@ class person_comparison:
 
                     cv2.imshow("Base Image", base_image)
 
-                    options[choice](hist_pool, video_image)
+                    options[choice](base_image_hist, base_hsv_hist, video_image)
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
