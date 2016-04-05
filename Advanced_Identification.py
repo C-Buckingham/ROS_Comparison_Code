@@ -20,7 +20,7 @@ blue_data_list = []
 green_data_list = []
 red_data_list = []
 class_number = []
-hist_pool = []
+image_pool = []
 
 with open("Histogram Pool.txt", "r") as text_file:
     for line in text_file:
@@ -147,66 +147,44 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
-    def colour_Matching(hist_pool, video_image):
+    def colour_Matching(image_pool, video_image):
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
+        rejected_image_pool = []
 
-        list_location_counter = 0
-
-        bgr_video_image_hist_list = []
-        hsv_video_image_hist_list = []
-
-        for z in range(0, len(hist_pool)):
+        for z in range(0, len(image_pool)):
             bgr_comparison_result = []
             hsv_comparison_result = []
-
-            print z
-            print "+++++"
+            hsv_base_image = cv2.cvtColor(image_pool[z], cv2.COLOR_BGR2HSV)
 
             for a in range(0, 3):
                 bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
-                # combined_hist_values[z] = bgr_video_image_hist.astype(int)
-
-                if a == 0:
-                    blue = bgr_video_image_hist
-                elif a == 1:
-                    green = bgr_video_image_hist
-                else:
-                    red = bgr_video_image_hist
-
+                bgr_base_image_hist = cv2.calcHist([image_pool[z]], [a], None, [256], [1, 256])
                 bgr_comparison_result.append(
-                    cv2.compareHist(bgr_video_image_hist, hist_pool[z][0][a], cv2.cv.CV_COMP_CORREL))
+                    cv2.compareHist(bgr_video_image_hist, bgr_base_image_hist, cv2.cv.CV_COMP_CORREL))
 
                 if a < 2:
 
                     hsv_video_image_hist = cv2.calcHist([hsv_video_image], [a], None, [256], [1, 256])
-                    if a == 0:
-                        hue = hsv_video_image_hist
-                    elif a == 1:
-                        sat = hsv_video_image_hist
+                    hsv_base_image_hist = cv2.calcHist([hsv_base_image], [a], None, [256], [1, 256])
 
                     hsv_comparison_result.append(
-                        cv2.compareHist(hsv_video_image_hist, hist_pool[z][1][a], cv2.cv.CV_COMP_CORREL))
+                        cv2.compareHist(hsv_video_image_hist, hsv_base_image_hist, cv2.cv.CV_COMP_CORREL))
 
             bgr_avg_correlation = np.mean(bgr_comparison_result)
             hsv_avg_correlation = np.mean(hsv_comparison_result)
 
-            if bgr_avg_correlation > 0.85:
+            if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.80:
                 cv2.imshow("Live Image", video_image)
                 print "Match Found!"
-                return bgr_video_image_hist_list, hsv_video_image_hist_list
+                return rejected_image_pool
             else:
                 print "No Match Found"
-                bgr_video_image_hist_list.append([])
-                hsv_video_image_hist_list.append([])
-                bgr_video_image_hist_list[list_location_counter].append(blue)
-                bgr_video_image_hist_list[list_location_counter].append(green)
-                bgr_video_image_hist_list[list_location_counter].append(red)
-                hsv_video_image_hist_list[list_location_counter].append(hue)
-                hsv_video_image_hist_list[list_location_counter].append(sat)
-                list_location_counter += 1
+                if bgr_avg_correlation < 0.30 and hsv_avg_correlation < 0.30:
+                    print "Added to pool"
+                    rejected_image_pool.append(video_image)
 
-        return bgr_video_image_hist_list, hsv_video_image_hist_list
+        return rejected_image_pool
 
     def feature_Matching(base_image, video_image):
         print "Feature Matching"
@@ -248,7 +226,7 @@ class person_comparison:
         global count
         global choice
         global base_image
-        global hist_pool
+        global image_pool
 
         hist_pool_location = 0
 
@@ -299,23 +277,12 @@ class person_comparison:
 
                 if count == 10 and person_h:
                     base_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
-                    base_hsv = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
-
-                    tmp_bgr_hist_store = []
-                    tmp_hsv_hist_store = []
 
                     for y in range(0, 3):
                         base_image[:, :, y] = base_image[:, :, y] * depth_image
 
-                        tmp_bgr_hist_store.append(cv2.calcHist([base_image], [y], None, [256], [1, 256]))
-
-                        if y < 2:
-                            tmp_hsv_hist_store.append(cv2.calcHist([cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)],
-                                                          [y], None, [256], [1, 256]))
-
-                    hist_pool.append([])
-                    hist_pool[0].append(tmp_bgr_hist_store)
-                    hist_pool[0].append(tmp_hsv_hist_store)
+                    image_pool.append(base_image)
+                    cv2.imshow("Base Image", image_pool[0])
 
                 elif count == 10 and not person_h:
                     count = 0
@@ -324,41 +291,14 @@ class person_comparison:
                     for y in range(0, 3):
                         video_image[:, :, y] = video_image[:, :, y] * depth_image
 
-                    video_image_list.append(video_image)
-
-                    print len(video_image_list)
-                    cv2.imshow("Base Image", base_image)
-
-                    print "Hist Pool Length: ", len(hist_pool)
-
+                    print "Image Pool Length: ", len(image_pool)
                     print "============"
 
-                    tmp = options[choice](hist_pool, video_image)
+                    tmp = options[choice](image_pool, video_image)
 
-                    # if len(hist_pool) > 2:
-                    #     print ""
-
-                    if tmp[0] != []:
-                        hist_pool_location += 1
-
-                        hist_pool.append([])
-
-                        hist_pool[hist_pool_location].append(tmp[0][0])
-                        hist_pool[hist_pool_location].append(tmp[1][0])
-
-                    # temp = []
-                    # temph = []
-                    #
-                    # temp.append(blue)
-                    # temp.append(green)
-                    # temp.append(red)
-                    #
-                    # temph.append(hue)
-                    # temph.append(sat)
-
-                    # hist_pool[hist_pool_location].append(temp)
-                    # hist_pool[hist_pool_location].append(temph)
-
+                    if tmp != None:
+                        for b in range(0, len(tmp)):
+                            image_pool.append(tmp[b])
 
 person_comparison()
 rospy.init_node('person_comparison', anonymous=True)
