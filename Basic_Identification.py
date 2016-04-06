@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 
 from sensor_msgs.msg import Image
+from std_msgs.msg import String
 from upper_body_detector.msg import UpperBodyDetector
 from cv_bridge import CvBridge, CvBridgeError
 from message_filters import ApproximateTimeSynchronizer, Subscriber
@@ -75,12 +76,17 @@ def draw_matches(img1, kp1, img2, kp2, matches, color=None):
 
 
 class person_comparison:
+
     def __init__(self):
         cv2.namedWindow("Live Image", 1)
         cv2.namedWindow("Base Image", 1)
         cv2.namedWindow("Original Image", 1)
         cv2.startWindowThread()
         self.bridge = CvBridge()
+
+        self.match_pub = rospy.Publisher("~match_image_out", Image, queue_size=1)
+        self.base_pub = rospy.Publisher("~base_image_out", Image, queue_size=1)
+        self.match_string = rospy.Publisher("~match_bool", String, queue_size=1)
 
         image_sub = Subscriber(
             "/camera/rgb/image_color",
@@ -99,6 +105,7 @@ class person_comparison:
             Image,
             queue_size=1
         )
+
         #        detections_image_sub = Subscriber(
         #            "/upper_body_detector/image",
         #            Image,
@@ -108,7 +115,7 @@ class person_comparison:
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
-    def colour_Matching(base_image_hist, base_hsv_hist, video_image):
+    def colour_Matching(self, base_image_hist, base_hsv_hist, video_image):
 
         hsv_video_image = cv2.cvtColor(video_image, cv2.COLOR_BGR2HSV)
         bgr_comparison_result = []
@@ -129,9 +136,12 @@ class person_comparison:
 
         if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.80:
             cv2.imshow("Live Image", video_image)
+            self.match_pub.publish(self.bridge.cv2_to_imgmsg(video_image))
+            self.match_string.publish("1")
             print "Match Found!"
         else:
             print "No Match Found"
+            self.match_string.publish("0")
 
     def feature_Matching(base_image, video_image):
         print "Feature Matching"
@@ -239,10 +249,11 @@ class person_comparison:
                         video_image[:, :, y] = video_image[:, :, y] * depth_image
 
                     cv2.imshow("Base Image", base_image)
+                    self.base_pub.publish(self.bridge.cv2_to_imgmsg(base_image))
 
-                    options[choice](base_image_hist, base_hsv_hist, video_image)
+                    options[choice](self, base_image_hist, base_hsv_hist, video_image)
 
+rospy.init_node('person_comparison')
 person_comparison()
-rospy.init_node('person_comparison', anonymous=True)
 rospy.spin()
 cv2.destroyAllWindows()
