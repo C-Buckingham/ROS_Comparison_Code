@@ -89,7 +89,7 @@ class person_comparison:
         self.match_string = rospy.Publisher("~match_bool", String, queue_size=1)
 
         image_sub = Subscriber(
-            "/camera/rgb/image_color",
+            "/head_xtion/rgb/image_color",
             Image,
             queue_size=1
         )
@@ -101,7 +101,7 @@ class person_comparison:
         )
 
         depth_sub = Subscriber(
-            "/camera/depth/image_rect",
+            "/head_xtion/depth/image_rect",
             Image,
             queue_size=1
         )
@@ -136,7 +136,7 @@ class person_comparison:
 
         if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.80:
             cv2.imshow("Live Image", video_image)
-            self.match_pub.publish(self.bridge.cv2_to_imgmsg(video_image))
+            self.match_pub.publish(self.bridge.cv2_to_imgmsg(video_image, "bgr8"))
             self.match_string.publish("1")
             print "Match Found!"
         else:
@@ -249,7 +249,7 @@ class person_comparison:
                         video_image[:, :, y] = video_image[:, :, y] * depth_image
 
                     cv2.imshow("Base Image", base_image)
-                    self.base_pub.publish(self.bridge.cv2_to_imgmsg(base_image))
+                    self.base_pub.publish(self.bridge.cv2_to_imgmsg(base_image, "bgr8"))
 
                     options[choice](self, base_image_hist, base_hsv_hist, video_image)
 
