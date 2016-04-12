@@ -78,16 +78,21 @@ def draw_matches(img1, kp1, img2, kp2, matches, color=None):
 class person_comparison:
 
     def __init__(self):
+        
+        # Create new windows
         cv2.namedWindow("Live Image", 1)
         cv2.namedWindow("Base Image", 1)
         cv2.namedWindow("Original Image", 1)
         cv2.startWindowThread()
         self.bridge = CvBridge()
 
-        self.match_pub = rospy.Publisher("~match_image_out", Image, queue_size=1)
-        self.base_pub = rospy.Publisher("~base_image_out", Image, queue_size=1)
-        self.match_string = rospy.Publisher("~match_bool", String, queue_size=1)
+        # Commented code below used for testing only
+        # self.match_pub = rospy.Publisher("~match_image_out", Image, queue_size=1)
+        # self.base_pub = rospy.Publisher("~base_image_out", Image, queue_size=1)
+        # self.match_string = rospy.Publisher("~match_bool", String, queue_size=1)
 
+        # Subscribe to the required topics. Using /camera/ instead of /head_xiton/ when
+        # not running on Linda
         image_sub = Subscriber(
             "/head_xtion/rgb/image_color",
             Image,
@@ -105,13 +110,7 @@ class person_comparison:
             Image,
             queue_size=1
         )
-
-        #        detections_image_sub = Subscriber(
-        #            "/upper_body_detector/image",
-        #            Image,
-        #            queue_size=1
-        #        )
-
+        
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
@@ -121,27 +120,38 @@ class person_comparison:
         bgr_comparison_result = []
         hsv_comparison_result = []
 
+        # Histogram calculation loop.
         for a in range(0, 3):
+            # BGR histogram calculation
             bgr_video_image_hist = cv2.calcHist([video_image], [a], None, [256], [1, 256])
+            
+            # Correlation calculation and storing for BGR image happens here
             bgr_comparison_result.append(
                 cv2.compareHist(bgr_video_image_hist, base_image_hist, cv2.cv.CV_COMP_CORREL))
 
             if a < 2:
+                # HSV histogram calculation
                 hsv_video_image_hist = cv2.calcHist([hsv_video_image], [a], None, [256], [1, 256])
+                
+                # Correlation calculation and storing for HSV image happens here
                 hsv_comparison_result.append(
                     cv2.compareHist(hsv_video_image_hist, base_hsv_hist, cv2.cv.CV_COMP_CORREL))
 
+        # Average the correlation results
         bgr_avg_correlation = np.mean(bgr_comparison_result)
         hsv_avg_correlation = np.mean(hsv_comparison_result)
 
         if bgr_avg_correlation > 0.85 or hsv_avg_correlation > 0.80:
+            
+            # Display image match
             cv2.imshow("Live Image", video_image)
-            self.match_pub.publish(self.bridge.cv2_to_imgmsg(video_image, "bgr8"))
-            self.match_string.publish("1")
+            
+            # Commented code below used for testing only
+            # self.match_pub.publish(self.bridge.cv2_to_imgmsg(video_image, "bgr8"))
+            
             print "Match Found!"
         else:
             print "No Match Found"
-            self.match_string.publish("0")
 
     def feature_Matching(base_image, video_image):
         print "Feature Matching"
@@ -190,6 +200,7 @@ class person_comparison:
         if len(person.height) > 0:
             for x in range(0, len(person.height)):
 
+                # Convert the messages from the sensor into an image
                 try:
                     video_image = self.bridge.imgmsg_to_cv2(img, "bgr8")
                     depth_image = self.bridge.imgmsg_to_cv2(depth)
@@ -198,6 +209,7 @@ class person_comparison:
 
                 cv2.imshow("Original Image", video_image)
 
+                # Making sure that the box stays within the bounds of the image
                 person_h = min(person.height[x], 480)
                 person_w = min(person.width[x], 640)
                 person_x = min(person.pos_x[x], 480)
@@ -210,10 +222,16 @@ class person_comparison:
 
                 count += 1
 
+                # Calculate the rough section of the screen the person is
                 depth_offset_percentage = float(person_x / 640.0 * 100.0)
 
+                # Transpose the array to move the mask correctly
                 depth_image = depth_image.transpose()
+                
+                # Roll the mask to try and offset the error from the sensors
                 depth_image = np.roll(depth_image, 35)
+                
+                # Put the array back into the correct orientation
                 depth_image = depth_image.transpose()
 
                 if depth_offset_percentage >= 70:
@@ -221,36 +239,54 @@ class person_comparison:
                 elif depth_offset_percentage <= 30:
                     depth_image = np.roll(depth_image, 15)
 
+                # Crop the depth image
                 depth_image = depth_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
 
+                # Store the size of the depth image
                 depth_image_shape = depth_image.shape
+                
+                # Flatten the array into a 1D shape
                 depth_image = depth_image.flatten()
+                
+                # Replace all the values in the array with either 1 or 0 for masking to work properly
                 depth_image = np.where(depth_image < person.median_depth[x] * 1.10, 1, 0)
-                #            depth_image = np.where(depth_image > person.median_depth[x]*1.50, 1, 0)
+                
+                # Reshape the array into to correct shape
                 depth_image = np.reshape(depth_image, depth_image_shape)
 
                 if count == 10 and person_h:
+                    # Crop the base image
                     base_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
+                    
+                    # Convert the image to HSV
                     base_hsv = cv2.cvtColor(base_image, cv2.COLOR_BGR2HSV)
 
+                    # Loop to go through and apply the mask to the base image
                     for y in range(0, 3):
                         base_image[:, :, y] = base_image[:, :, y] * depth_image
                         base_image_hist = cv2.calcHist([base_image], [y], None, [256], [1, 256])
-
                         if y < 2:
                             base_hsv[:, :, y] = base_hsv[:, :, y] * depth_image
                             base_hsv_hist = cv2.calcHist([base_hsv], [y], None, [256], [1, 256])
 
+                # Check to make sure that there is a person in the image before moving on
                 elif count == 10 and not person_h:
                     count = 0
                 elif count > 10:
+                    
+                    # Crop the video image.
                     video_image = video_image[person_y:(person_y + person_w) * 2, person_x:person_x + person_h]
+                    
+                    # Apply the mask to the image.
                     for y in range(0, 3):
                         video_image[:, :, y] = video_image[:, :, y] * depth_image
 
                     cv2.imshow("Base Image", base_image)
-                    self.base_pub.publish(self.bridge.cv2_to_imgmsg(base_image, "bgr8"))
+                    
+                    # Commented code below used for testing only.
+                    # self.base_pub.publish(self.bridge.cv2_to_imgmsg(base_image, "bgr8"))
 
+                    # Search through the dictionary for the choice that the use selected and call that function.
                     options[choice](self, base_image_hist, base_hsv_hist, video_image)
 
 rospy.init_node('person_comparison')
