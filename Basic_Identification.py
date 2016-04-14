@@ -111,6 +111,7 @@ class person_comparison:
             queue_size=1
         )
         
+        # Time syncronizer is implimented to make sure that all of the frames match up from all of the topics.
         ts = ApproximateTimeSynchronizer([image_sub, person_sub, depth_sub], 1, 0.1)
         ts.registerCallback(self.image_callback)
 
@@ -154,30 +155,24 @@ class person_comparison:
             print "No Match Found"
 
     def feature_Matching(base_image, video_image):
-        print "Feature Matching"
+        # This part of the code does not work, was an ealry attempt to get some feture matching working.
 
+        # ORB feature detector is created here.
         orb = cv2.ORB()
 
+        # Compute and store the ORB features.
         kp1, des1 = orb.detectAndCompute(video_image, None)
         kp2, des2 = orb.detectAndCompute(base_image, None)
 
-        #                    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+        # Finds the matching sections between the two images.
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-
+        
         matches = bf.match(des1, des2)
-        # matches = bf.knnMatch(des1, des2)
 
-        #                    Why I am using ORB: https://www.willowgarage.com/sites/default/files/orb_final.pdf
-
-        # good = []
-        # for m,n in matches:
-        #    if m.distance < 0.75*n.distance:
-        #        good.append([m])
-
-        # match = sorted(match, key = lambda x:x.distance)
-
+        # Sort the matches into the highest accuracy.
         matches = sorted(matches, key=lambda m: m.distance)
 
+        # Call the draw matches function to draw the 10 closest matches.
         video_image = draw_matches(video_image, kp1, base_image, kp2, matches[:10])
 
         cv2.imshow("Image window", video_image)
@@ -187,6 +182,7 @@ class person_comparison:
 
     global options
 
+    # Declaring the dictionary
     options = {'C': colour_Matching, 'F': feature_Matching}
 
     def image_callback(self, img, person, depth):
