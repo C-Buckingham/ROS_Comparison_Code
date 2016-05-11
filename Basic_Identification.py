@@ -94,7 +94,7 @@ class person_comparison:
         # Subscribe to the required topics. Using /camera/ instead of /head_xiton/ when
         # not running on Linda
         image_sub = Subscriber(
-            "/head_xtion/rgb/image_color",
+            "/camera/rgb/image_color",
             Image,
             queue_size=1
         )
@@ -106,7 +106,7 @@ class person_comparison:
         )
 
         depth_sub = Subscriber(
-            "/head_xtion/depth/image_rect",
+            "/camera/depth/image_rect",
             Image,
             queue_size=1
         )
